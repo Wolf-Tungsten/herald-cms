@@ -1,0 +1,21 @@
+# 这是 herald-cms 面向用户的配置文件
+
+# 服务器URL（以/结尾）
+serverURL: http://127.0.0.1:7002/
+
+# MongoDB 配置
+mongodbURL: 'mongodb://username:password@host:port/dbname?authMechanism=DEFAULT'
+
+# 邮件服务器配置
+# herald-cms 需要发送邮件以实现完整的功能，请自行准备支持SMTP的邮箱或者搭建服务器
+mail: 
+  host: 10.64.200.111
+  port: 25
+  secure: false
+  auth:
+    user: cardnum@seu.edu.cn
+    pass: password
+
+# CORS 白名单
+domainWhiteList:
+  - 'http://localhost:4200'

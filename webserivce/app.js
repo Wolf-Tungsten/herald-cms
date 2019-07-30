@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const nodemailer = require('nodemailer')
 
 class AppBootHook {
     constructor(app) {
@@ -53,7 +54,14 @@ class AppBootHook {
   
     async didReady() {
       // 应用已经启动完毕
-
+      let transporter = nodemailer.createTransport(this.app.config.mail);
+      transporter.verify(function(error, success) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Server is ready to take our messages");
+        }
+      });
     }
   
     async serverDidReady() {

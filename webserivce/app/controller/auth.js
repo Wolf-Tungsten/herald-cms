@@ -3,6 +3,7 @@ const captchaGen = require('svg-captcha')
 const Controller = require('egg').Controller;
 
 class AuthController extends Controller {
+  // 用户登录逻辑
   async login() {
     const { ctx } = this;
     let { username, password, captchaCode } = ctx.request.body
@@ -64,6 +65,7 @@ class AuthController extends Controller {
       throw '密码错误'
     }
   }
+  // 用户注册
 }
 
 module.exports = AuthController;
