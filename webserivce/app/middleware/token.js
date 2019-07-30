@@ -17,6 +17,20 @@ module.exports = option => {
             }
             return result._id
         }
+        ctx.getUserInfo = async () => {
+            if(token === ''){
+                throw 401
+            }
+            let result = await ctx.model.User.find({tokenHash:ctx.helper.hash(token)})
+            if(result.length !== 1){
+                throw 401
+            }
+            result = result[0]
+            if(ctx.helper.now > result.tokenExpireTime){
+                throw 401
+            }
+            return result
+        }
         return await next()
     }
 }
