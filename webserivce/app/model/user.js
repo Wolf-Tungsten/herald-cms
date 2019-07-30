@@ -17,7 +17,8 @@ module.exports = app => {
     emailCodeExpireTime:{type:Number, default:0},
     extraInfoJson: {type:Map, default:{}},
     isAdmin: {type:Boolean, default:false},
-    isAuthor: {type:Boolean, default:false}
+    isAuthor: {type:Boolean, default:false},
+    isActivated: {type:Boolean, default:false}
   });
 
   return mongoose.model('User', UserSchema);

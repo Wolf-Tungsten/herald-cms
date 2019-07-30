@@ -25,7 +25,9 @@ class AuthController extends Controller {
       throw '用户名/邮箱地址/手机号码不存在'
     }
     user = user[0] // 按照优先级选取第一个记录
-
+    if(!user.isActivated){
+      throw '用户未激活'
+    }
     if(user.attemptCount > 3){
       // 密码输错次数大于3
       if(!captchaCode || user.captchaCode === '' || (captchaCode.toUpperCase() !== user.captchaCode.toUpperCase())){
@@ -65,7 +67,79 @@ class AuthController extends Controller {
       throw '密码错误'
     }
   }
+
   // 用户注册
+  async register(){
+    const { ctx } = this;
+    let { username, password, email, phoneNumber } = ctx.request.body
+    // 检查用户名是否被注册
+    let count = await ctx.model.User.countDocuments({name:username})
+    if(count > 0){
+      throw '用户名已占用，请更换'
+    }
+    if(username.indexOf('@') != -1){
+      throw '用户名格式不合法'
+    }
+    if(!(/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email))){
+      throw '电子邮箱格式不正确，请检查'
+    }
+    // 检查邮箱是否被占用
+    count = await ctx.model.User.countDocuments({email})
+    if(count > 0){
+      throw '电子邮箱地址已被注册，请更换'
+    }
+    if(password.length < 8){
+      throw '密码长度小于8位，请重新设置'
+    }
+    let newUser = new ctx.model.User({
+      name:username,
+      password,
+      email,
+      phoneNumber
+    })
+    await newUser.save()
+    return '注册成功'
+  }
+
+  // 请求激活
+  async requestActivate(){
+    const { ctx } = this;
+    let { email } = ctx.request.body
+    let record = await ctx.model.User.findOne({email, isActivated:false})
+    if(!record){
+      throw '电子邮箱未注册或已激活，请检查'
+    }
+    if(record.emailCodeExpireTime - ctx.helper.now() > 14 * 60 * 1000){
+      throw '验证请求频率过高，请1分钟后重试'
+    }
+    let code = ctx.helper.randomCode(6)
+    // 记录邮箱验证码，15分钟有效
+    record.emailCode = code
+    record.emailCodeExpireTime = +(ctx.helper.now() + 15 * 60 * 1000)
+    await record.save()
+    await ctx.helper.sendCodeEmail(code, email)
+    return '邮件已发送，请注意查收'
+  }
+
+  async activate(){
+    const { ctx } = this;
+    let { email, emailCode } = ctx.request.body
+    let record = await ctx.model.User.findOne({email, isActivated:false})
+    if(!record){
+      throw '邮箱地址未注册或已激活'
+    }
+    if(record.emailCode === emailCode && ctx.helper.now() < record.emailCodeExpireTime){
+      record.isActivated = true
+      record.emailCode = ''
+      await record.save()
+      return '激活成功'
+    } else {
+      record.isActivated = false
+      record.emailCode = ''
+      await record.save()
+      throw '验证码无效'
+    }
+  }
 }
 
 module.exports = AuthController;
