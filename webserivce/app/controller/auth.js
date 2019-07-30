@@ -102,12 +102,12 @@ class AuthController extends Controller {
   }
 
   // 请求激活
-  async requestActivate(){
+  async requestVerify(){
     const { ctx } = this;
     let { email } = ctx.request.body
-    let record = await ctx.model.User.findOne({email, isActivated:false})
+    let record = await ctx.model.User.findOne({email})
     if(!record){
-      throw '电子邮箱未注册或已激活，请检查'
+      throw '电子邮箱未注册，请检查'
     }
     if(record.emailCodeExpireTime - ctx.helper.now() > 14 * 60 * 1000){
       throw '验证请求频率过高，请1分钟后重试'
@@ -140,6 +140,26 @@ class AuthController extends Controller {
       throw '验证码无效'
     }
   }
+
+  async resetPassword(){
+    const { ctx } = this;
+    let { email, emailCode, newPassword } = ctx.request.body
+    let record = await ctx.model.User.findOne({email})
+    if(!record){
+      throw '邮箱地址未注册或已激活'
+    }
+    if(record.emailCode === emailCode && ctx.helper.now() < record.emailCodeExpireTime){
+      record.passwordHash = ctx.helper.hash(newPassword)
+      await record.save()
+      return '密码重制成功'
+    } else {
+      record.emailCode = ''
+      await record.save()
+      throw '验证码无效'
+    }
+  }
+
+
 }
 
 module.exports = AuthController;
