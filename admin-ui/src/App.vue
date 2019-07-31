@@ -77,8 +77,8 @@ html {
   height: 100%;
 }
 body {
-  height: 98vh;
-  margin: 1vh 5vh;
+  height: 100vh;
+  margin: 1vh 5vh 0 5vh;
 }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
