@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <el-container class="main-cnt">
+    <div class="media-hint show-xxs-only">
+      <img src="./assets/herald-cms-logo-text.png" style="width:auto;height:80px;margin-top:80px;margin-bottom:40px;" />
+      <p>为了良好的使用体验，请保证浏览器窗口宽度大于600像素</p>
+      <p style="font-size:20px;font-weight:bolder;">当前宽度：{{screenWidth}}px</p>
+    </div>
+    <el-container class="main-cnt hidden-xxs-only">
       <el-header v-if="isLogin">
         <div class="header">
           <img
@@ -40,11 +45,23 @@ import "./assets/herald-cms-logo-text.png";
 import "./assets/herald-cms-logo.png";
 import "element-ui/lib/theme-chalk/display.css";
 export default {
+  data(){
+    return {
+      screenWidth:window.document.documentElement.clientWidth
+    }
+  },
   created() {
     if (!this.isLogin) {
       this.$router.replace({ name: "login" });
+      this.$axios.defaults.headers.common["Access-Token"] = "";
     } else {
       this.$router.replace({ name: "column" });
+      this.$axios.defaults.headers.common[
+        "Access-Token"
+      ] = this.$store.state.accessToken;
+    }
+    window.onresize = ()=>{
+      this.screenWidth = window.document.documentElement.clientWidth
     }
   },
   computed: {
@@ -61,7 +78,7 @@ html {
 }
 body {
   height: 98vh;
-  margin: 1vh 10vh;
+  margin: 1vh 5vh;
 }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -104,5 +121,17 @@ body {
 .main-cnt {
   height: 100%;
   flex-direction: column !important;
+}
+
+@media screen and (max-width: 600px) {
+  .hidden-xxs-only {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .show-xxs-only {
+    display: none !important;
+  }
 }
 </style>

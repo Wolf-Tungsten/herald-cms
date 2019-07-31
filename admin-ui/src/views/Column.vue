@@ -1,8 +1,8 @@
 <template>
-  <el-container style="height:100%;">
+  <el-container style="height:100%;" v-loading="loading">
     <el-aside class="aside">
-        <div style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px;"><icon class="el-icon-s-unfold"></icon>选择栏目进行操作</div>
-        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+        <div style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px;"><span class="el-icon-s-unfold" style="margin-right:10px;"></span>选择栏目进行操作</div>
+        <el-tree :data="tree" :props="defaultProps" node-key="_id" @node-click="handleNodeClick" :default-expanded-keys="defaultExpand"></el-tree>
     </el-aside>
     <el-main>栏目管理主要</el-main>
   </el-container>
@@ -15,134 +15,27 @@ export default {
   data() {
     //----
     return {
-      data: [
-        {
-          label: "一级 1",
-          children: [
-            {
-              label: "二级 1-1",
-              children: [
-                {
-                  label: "三级 1-1-1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          label: "一级 2",
-          children: [
-            {
-              label: "二级 2-1",
-              children: [
-                {
-                  label: "三级 2-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 2-2",
-              children: [
-                {
-                  label: "三级 2-2-1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          label: "一级 3",
-          children: [
-            {
-              label: "二级 3-1",
-              children: [
-                {
-                  label: "三级 3-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 3-2",
-              children: [
-                {
-                  label: "三级 3-2-1"
-                }
-              ]
-            }
-          ]
-        },{
-          label: "一级 3",
-          children: [
-            {
-              label: "二级 3-1",
-              children: [
-                {
-                  label: "三级 3-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 3-2",
-              children: [
-                {
-                  label: "三级 3-2-1"
-                }
-              ]
-            }
-          ]
-        },{
-          label: "一级 3",
-          children: [
-            {
-              label: "二级 3-1",
-              children: [
-                {
-                  label: "三级 3-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 3-2",
-              children: [
-                {
-                  label: "三级 3-2-1"
-                }
-              ]
-            }
-          ]
-        },{
-          label: "一级 3",
-          children: [
-            {
-              label: "二级 3-1",
-              children: [
-                {
-                  label: "三级 3-1-1"
-                }
-              ]
-            },
-            {
-              label: "二级 3-2",
-              children: [
-                {
-                  label: "三级 3-2-1"
-                }
-              ]
-            }
-          ]
-        }
-      ],
+      loading:false,
+      tree:[],
+      defaultExpand:[],
       defaultProps: {
-        children: "children",
-        label: "label"
+        children: "childrenList",
+        label: "name"
       }
     };
     //----
   },
   methods: {
-    getContent() {
-      console.log(this.editorData);
+    async getColumnTree(){
+      this.loading = true
+      let res = await this.$axios.get('/column')
+      this.loading = false
+      this.tree = [res.data.result]
+      this.defaultExpand = [res.data.result._id]
     }
+  },
+  created(){
+    this.getColumnTree()
   }
 };
 </script>

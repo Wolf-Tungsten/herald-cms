@@ -50,6 +50,10 @@ class AppBootHook {
         await initAdmin.save()
         console.log('网站初始化完毕，初始登录用户名：admin，初始密码：admin')
       }
+      // 初始化栏目操作
+
+      const ctx = await this.app.createAnonymousContext();
+      await ctx.service.column.init()
     }
   
     async didReady() {

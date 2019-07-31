@@ -6,8 +6,8 @@ import Login from './views/Login.vue'
 import Activate from './views/Activate.vue'
 Vue.use(Router)
 
-export default new Router({
-  mode: 'history',
+window.$router  = new Router({
+  mode: 'hash',
   base: process.env.BASE_URL,
   routes: [
     {
@@ -28,3 +28,5 @@ export default new Router({
     
   ]
 })
+
+export default window.$router

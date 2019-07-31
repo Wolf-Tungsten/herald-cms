@@ -8,7 +8,7 @@ const AxiosPlugins = {
                 // 对 data 进行任意转换处理
                 data = JSON.parse(data)
                 if(data.code === 401){
-                    Vue.$store.commit('logout')
+                    window.$store.commit('logout')
                 }
                 return data;
             }

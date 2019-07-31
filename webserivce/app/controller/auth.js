@@ -20,11 +20,10 @@ class AuthController extends Controller {
       // 以上两种都无法匹配 - 按照用户名匹配
       user.push(await ctx.model.User.findOne({name:username}))
     }
-    if(user.length === 0){
-      // 用户名不存在
+    user = user[0] // 按照优先级选取第一个记录
+    if(!user){
       throw '用户名/邮箱地址/手机号码不存在'
     }
-    user = user[0] // 按照优先级选取第一个记录
     if(!user.isActivated){
       throw '用户未激活'
     }
