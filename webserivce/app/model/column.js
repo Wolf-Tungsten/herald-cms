@@ -5,7 +5,7 @@ module.exports = app => {
   const ColumnSchema = new Schema({
     code: { type: String },
     name: { type: String },
-    level: {type:Number, default:0},
+    level: { type:Number },
     parentId: {type:String, default:''}
   });
 

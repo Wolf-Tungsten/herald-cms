@@ -1,7 +1,7 @@
 <template>
   <el-container style="height:100%;">
     <el-aside class="aside">
-        <div>选择栏目进行操作</div>
+        <div style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px;"><icon class="el-icon-s-unfold"></icon>选择栏目进行操作</div>
         <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
     </el-aside>
     <el-main>栏目管理主要</el-main>
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "empty",
+  name: "column",
   components: {},
   data() {
     //----

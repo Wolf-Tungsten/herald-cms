@@ -27,5 +27,31 @@ Herald-CMS 接口完全开放，实际上用户可以自行实现管理后台，
 
 ### 身份认证
 
+### 栏目管理 - Column
+
+数据模型：
+
+```
+{
+    _id: { type: ObjectId },
+    code: { type: String }, // 便捷栏目代码，随机数字字母组合，便于前端站开发使用
+    name: { type: String }, // 栏目名称（标题）
+    level: { type:Number }, // 栏目的级别，下文详细解释
+    parentId: {type:String, default:''} // 父栏目Id
+}
+```
+
+#### 栏目的级别
+
+Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「站点」，根栏目 level 为 0 级，由系统自动维护。所有用户创建栏目均需指定父栏目，子栏目 level 较父栏目 level 增加 1。
+
+#### 栏目创建功能
+
+**接口** ：`POST /api/v1/column/create`
+
+**参数** ：
+
+- parentId - 父栏目Id
+- name - 栏目名称
 
 

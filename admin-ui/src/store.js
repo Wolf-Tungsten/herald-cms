@@ -11,7 +11,7 @@ export default new Vuex.Store({
   mutations: {
     login(state, accessToken){
       state.isLogin = true
-      Vue.$axios.defaults.headers.common['Access-Token'] = accessToken
+      Vue.prototype.$axios.defaults.headers.common['Access-Token'] = accessToken
       state.accessToken = accessToken
     },
     logout(state){

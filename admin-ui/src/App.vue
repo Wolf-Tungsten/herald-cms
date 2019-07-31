@@ -3,8 +3,16 @@
     <el-container class="main-cnt">
       <el-header v-if="isLogin">
         <div class="header">
-          <img src="./assets/herald-cms-logo-text.png" style="width:auto;height:55px;" class="hidden-xs-only" />
-          <img src="./assets/herald-cms-logo.png" style="width:auto;height:55px;" class="hidden-sm-and-up"/>
+          <img
+            src="./assets/herald-cms-logo-text.png"
+            style="width:auto;height:55px;"
+            class="hidden-xs-only"
+          />
+          <img
+            src="./assets/herald-cms-logo.png"
+            style="width:auto;height:55px;"
+            class="hidden-sm-and-up"
+          />
           <div class="col-line"></div>
           <!-- <div style="font-weight:bold;">站点后台</div> -->
           <div class="space hidden-sm-and-down">
@@ -21,34 +29,37 @@
           </el-menu>
         </div>
       </el-header>
-    <el-main style="height:100%;">
-      <router-view />
-    </el-main>
+      <el-main>
+        <router-view />
+      </el-main>
     </el-container>
-    
   </div>
 </template>
 <script>
 import "./assets/herald-cms-logo-text.png";
 import "./assets/herald-cms-logo.png";
-import 'element-ui/lib/theme-chalk/display.css';
+import "element-ui/lib/theme-chalk/display.css";
 export default {
-  created(){
-    this.$router.replace({name:'activate'})
+  created() {
+    if (!this.isLogin) {
+      this.$router.replace({ name: "login" });
+    } else {
+      this.$router.replace({ name: "column" });
+    }
   },
-  computed:{
-    isLogin(){
-      return this.$store.state.isLogin
+  computed: {
+    isLogin() {
+      return this.$store.state.isLogin;
     }
   }
 };
 </script>
 
 <style>
-html{
+html {
   height: 100%;
 }
-body{
+body {
   height: 98vh;
   margin: 1vh 10vh;
 }
@@ -90,7 +101,8 @@ body{
 .space {
   flex-grow: 1;
 }
-.main-cnt{
+.main-cnt {
   height: 100%;
+  flex-direction: column !important;
 }
 </style>
