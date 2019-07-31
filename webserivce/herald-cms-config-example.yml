@@ -18,4 +18,4 @@ mail:
 
 # CORS 白名单
 domainWhiteList:
-  - 'http://localhost:4200'
+  - 'http://localhost:8080'

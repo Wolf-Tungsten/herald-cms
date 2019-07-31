@@ -16,6 +16,7 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   let configYaml = yaml.parse(fs.readFileSync(path.join(appInfo.baseDir, 'herald-cms-config.yml'), 'utf8'))
+  console.log(configYaml.domainWhiteList)
   const config = exports = {
     security: {
       csrf: {
@@ -36,6 +37,7 @@ module.exports = appInfo => {
     },
     mail:configYaml.mail
   };
+  config.webPostLoginURL = configYaml.webPostLoginURL
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1563698732399_8150';
 

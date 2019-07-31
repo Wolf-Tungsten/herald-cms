@@ -44,11 +44,11 @@ class AppBootHook {
         let initAdmin = new this.app.model.User({
           name:'admin',
           passwordHash,
-          email:'admin@herald-cms.com',
+          email:'794216553@qq.com',
           isAdmin:true
         })
         await initAdmin.save()
-        console.log('网站初始化完毕，初始登录邮箱：admin@herald-cms.com，初始密码：admin')
+        console.log('网站初始化完毕，初始登录用户名：admin，初始密码：admin')
       }
     }
   

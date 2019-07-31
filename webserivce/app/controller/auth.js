@@ -57,6 +57,9 @@ class AuthController extends Controller {
       console.log(user)
       return {
         needCaptcha:false,
+        isAdmin:user.isAdmin,
+        isAuthor:user.isAuthor,
+        postLoginUrl:ctx.app.config.webPostLoginURL,
         token
       }
     } else {
@@ -93,7 +96,7 @@ class AuthController extends Controller {
     }
     let newUser = new ctx.model.User({
       name:username,
-      password,
+      passwordHash:ctx.helper.hash(password),
       email,
       phoneNumber
     })
@@ -109,7 +112,7 @@ class AuthController extends Controller {
     if(!record){
       throw '电子邮箱未注册，请检查'
     }
-    if(record.emailCodeExpireTime - ctx.helper.now() > 14 * 60 * 1000){
+    if(record.emailCodeExpireTime - ctx.helper.now() > 15 * 60 * 1000){
       throw '验证请求频率过高，请1分钟后重试'
     }
     let code = ctx.helper.randomCode(6)

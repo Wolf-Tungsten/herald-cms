@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-container class="main-cnt">
-      <el-header>
+      <el-header v-if="isLogin">
         <div class="header">
           <img src="./assets/herald-cms-logo-text.png" style="width:auto;height:55px;" class="hidden-xs-only" />
           <img src="./assets/herald-cms-logo.png" style="width:auto;height:55px;" class="hidden-sm-and-up"/>
@@ -32,7 +32,16 @@
 import "./assets/herald-cms-logo-text.png";
 import "./assets/herald-cms-logo.png";
 import 'element-ui/lib/theme-chalk/display.css';
-export default {};
+export default {
+  created(){
+    this.$router.replace({name:'activate'})
+  },
+  computed:{
+    isLogin(){
+      return this.$store.state.isLogin
+    }
+  }
+};
 </script>
 
 <style>
