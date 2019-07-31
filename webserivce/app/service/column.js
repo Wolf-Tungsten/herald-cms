@@ -28,7 +28,7 @@ class ColumnService extends Service {
       throw 401
     }
     let root = await this.findColumnById(parentId)
-    root = { _id:root._id, children:{}, name:root.name, childrenList:[] }
+    root = { _id:root._id, children:{}, name:root.name, childrenList:[], code:root.code }
     let bfsQueue = [root]
     let p
     while(bfsQueue.length > 0){
@@ -36,7 +36,7 @@ class ColumnService extends Service {
       p.children = {}
       let children = await this.ctx.model.Column.find({parentId:p._id})
       children.forEach(c => {
-        c = { _id:c._id, name:c.name, parentId:c.parentId, childrenList:[]}
+        c = { _id:c._id, name:c.name, parentId:c.parentId, childrenList:[], code:c.code}
         p.children[c._id] = c
         p.childrenList.push(c)
         bfsQueue.push(c)
