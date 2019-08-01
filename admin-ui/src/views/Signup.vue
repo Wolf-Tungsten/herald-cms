@@ -8,19 +8,19 @@
         <el-input v-model="form.username" placeholder="用户名"></el-input>
 			</el-form-item>
 			<el-form-item label="密码" :error="passwordError">
-        <el-input v-model="form.password" placeholder="密码(至少8位)"></el-input>
+        <el-input v-model="form.password" placeholder="密码(至少8位)" type="password"></el-input>
 			</el-form-item>
 			<el-form-item label="确认密码" :error="pwdconfirmError">
-        <el-input v-model="form.pwdConfirm" placeholder="确认密码"></el-input>
+        <el-input v-model="form.passwordConfirm" placeholder="确认密码" type="password"></el-input>
 			</el-form-item>
 			<el-form-item label="邮箱" :error="emailError">
         <el-input v-model="form.email" placeholder="邮箱地址"></el-input>
 			</el-form-item>
 			<el-form-item label="联系电话" :error="phoneNumberError">
-        <el-input v-model="form.phoneNum" placeholder="联系电话"></el-input>
+        <el-input v-model="form.phoneNumber" placeholder="联系电话"></el-input>
 			</el-form-item>
     </el-form>
-    <el-button type="primary" @click="login" style="width:100%;">注册</el-button>
+    <el-button type="primary" @click="signup" style="width:100%;">注册</el-button>
     <div style="margin-top:20px;font-size:12px;color:#909399">先声内容管理 • 「中国特色」的开源CMS</div>
   
   </div>
@@ -51,7 +51,7 @@ export default {
     };
   },
   methods: {
-    async login() {
+    async signup() {
       this.loading = true
       this.emailError="";
       this.usernameError= "";
@@ -61,12 +61,13 @@ export default {
 
       let res = await this.$axios.post("/register", this.form);
       this.loading = false
+      let that = this
       if (res.data.success) {
         this.$message({
           message: "注册完成，请继续完成激活",
           type: "success",
           onClose(){
-            this.$router.replace({name:'activate'})
+            that.$router.replace({name:'activate'})
           }
         });
       } else {

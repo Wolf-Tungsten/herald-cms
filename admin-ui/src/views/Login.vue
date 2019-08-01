@@ -13,8 +13,12 @@
         <el-input v-model="form.captchaCode" placeholder="此次登陆需要验证码"></el-input>
       </el-form-item>
       <div v-html="captchaData" style="margin-bottom:10px;"></div>
+      
     </el-form>
-    <el-button type="primary" @click="login" style="width:100%;">登录</el-button>
+    <div>
+      <el-button type="primary" @click="login" style="width:100%;">登录</el-button>
+      <el-button type="text" @click="signup" style="width:100%; margin-left:0;margin-top:10px;">新用户注册</el-button>
+    </div>
     <div style="margin-top:20px;font-size:12px;color:#909399">先声内容管理 • 「中国特色」的开源CMS</div>
   </div>
 </template>
@@ -76,6 +80,9 @@ export default {
           this.$message.error(res.data.reason);
         }
       }
+    },
+    signup(){
+      this.$router.push({name:'signup'})
     }
   }
 };

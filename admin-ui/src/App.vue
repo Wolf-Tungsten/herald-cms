@@ -23,14 +23,14 @@
           <div class="space hidden-sm-and-down">
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item :to="{ path: '/' }">站点后台</el-breadcrumb-item>
-              <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+              <el-breadcrumb-item>{{currentRouteName}}</el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <el-menu class="el-menu-demo" mode="horizontal">
-            <el-menu-item index="1">文章管理</el-menu-item>
-            <el-menu-item index="2">栏目设置</el-menu-item>
-            <el-menu-item index="3">人员管理</el-menu-item>
-            <el-menu-item index="4">个人设置</el-menu-item>
+          <el-menu class="el-menu-demo" mode="horizontal" @select="handleSelect" default-active="column">
+            <el-menu-item index="login" :route="{name:'login'}">文章管理</el-menu-item>
+            <el-menu-item index="column" :route="{name:'column'}">栏目设置</el-menu-item>
+            <el-menu-item index="role" :route="{name:'role'}">人员管理</el-menu-item>
+            <el-menu-item index="personal" :route="{name:'personal'}">个人设置</el-menu-item>
           </el-menu>
         </div>
       </el-header>
@@ -67,6 +67,14 @@ export default {
   computed: {
     isLogin() {
       return this.$store.state.isLogin;
+    },
+    currentRouteName(){
+      return this.$store.state.currentRouteName;
+    }
+  },
+  methods:{
+    handleSelect(name){
+      this.$router.replace({name})
     }
   }
 };

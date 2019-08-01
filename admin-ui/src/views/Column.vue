@@ -82,7 +82,8 @@ export default {
       },
       currentOpId: "",
       current: { name: "加载中……" },
-      newColumnName: ""
+      newColumnName: "",
+      renameColumnName:""
     };
     //----
   },
@@ -123,6 +124,9 @@ export default {
       await this.getColumnTree();
       await this.loadCurrent(this.currentOpId);
       this.loading = false;
+    },
+    async renameColumn(){
+      
     }
   },
   async created() {

@@ -20,7 +20,8 @@ window.$router  = new Router({
     {
       path: '/',
       name: 'column',
-      component: Column
+      component: Column,
+      meta:{displayName:"栏目配置"}
     },
     {
       path: '/login',
@@ -34,6 +35,11 @@ window.$router  = new Router({
     },
     
   ]
+})
+
+window.$router.beforeEach((to, from, next) => {
+  window.$store.commit('setCurrentRouteName',{from, to})
+  next()
 })
 
 export default window.$router

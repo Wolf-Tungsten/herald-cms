@@ -12,7 +12,8 @@ window.$store = new Vuex.Store({
   plugins:[vuexLocal.plugin],
   state: {
     isLogin:false,
-    accessToken:''
+    accessToken:'',
+    currentRouteName:''
   },
   mutations: {
     login(state, accessToken){
@@ -25,6 +26,10 @@ window.$store = new Vuex.Store({
       Vue.prototype.$axios.defaults.headers.common['Access-Token'] = ''
       state.accessToken = ''
       window.$router.replace({name:'login'})
+    },
+    setCurrentRouteName(state, routeName){
+      let { from, to } = routeName
+      state.currentRouteName = to.meta.displayName
     }
   },
   actions: {
