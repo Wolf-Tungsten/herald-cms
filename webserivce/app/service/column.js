@@ -22,6 +22,7 @@ class ColumnService extends Service {
     return await this.ctx.model.Column.findOne({code})
   }
 
+  // 以树结构形式查找指定栏目的所有子栏目（根节点为指定栏目）
   async findChildColumns(parentId){
     let userInfo = await this.ctx.getUserInfo()
     if(!(userInfo.isAdmin || userInfo.isAuthor)){
@@ -45,6 +46,28 @@ class ColumnService extends Service {
     return root
   }
 
+  // 以列表形式查找指定栏目的所有子栏目
+  async findChildColumnInList(parentId){
+    let children = await this.ctx.model.Column.find({parentId:parentId})
+    let deep = []
+    await Promise.all(children.map(async (c)=>{
+      let d = await this.findChildColumnInList(c._id)
+      deep = deep.concat(d)
+    }))
+    children = children.concat(deep)
+    return children
+  }
+
+  // 查找指定栏目的所有祖先栏目
+  async findParentColumnChain(columnId){
+    let col = await this.findColumnById(columnId)
+    if(col.level === 0){
+      return []
+    } else {
+      col = await this.findColumnById(col.parentId)
+      return [...(await this.findParentColumnChain(col._id)), col]
+    }
+  }
 }
 
 module.exports = ColumnService;
