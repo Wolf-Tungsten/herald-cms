@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import Column from './views/Column.vue'
 import Login from './views/Login.vue'
 import Activate from './views/Activate.vue'
+import Signup from './views/Signup.vue'
+
 Vue.use(Router)
 
 window.$router  = new Router({
@@ -24,6 +26,11 @@ window.$router  = new Router({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: Signup
     },
     
   ]
