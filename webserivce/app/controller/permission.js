@@ -4,6 +4,25 @@ const Controller = require('egg').Controller;
 
 class PermissionController extends Controller {
 
+  async getUserInfoByEmail() {
+    let {email} = this.ctx.request.query
+    let userInfo = await ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+        throw '无权操作'
+    }
+    let user = await this.ctx.model.User.findOne({email})
+    if(user){
+      return {
+        name:user.name,
+        id:user._id,
+        email:user.email,
+        phoneNumber:user.phoneNumber
+      }
+    } else {
+      throw '用户不存在'
+    }
+  }
+
   async getColumnPermission() {
     // 获取指定栏目所有的授权
     let { columnId } = this.ctx.request.query
@@ -13,6 +32,26 @@ class PermissionController extends Controller {
     }
     let res = await this.ctx.model.Permission.find({columnId})
     return res
+  }
+
+  async getUserPermission(){
+    let { userId } = this.ctx.request.query
+    let userInfo = await ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+        throw '无权操作'
+    }
+    if(!userId){
+      userId = userInfo._id
+    }
+    return await this.ctx.service.permission.getPermissionList(userId)
+  }
+  
+  async setAdmin(){
+
+  }
+
+  async cancelAdmin(){
+
   }
   
   async set() {
