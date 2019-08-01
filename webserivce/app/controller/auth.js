@@ -73,7 +73,7 @@ class AuthController extends Controller {
   // 用户注册
   async register(){
     const { ctx } = this;
-    let { username, password, email, phoneNumber } = ctx.request.body
+    let { username, password, email, phoneNumber, passwordConfirm } = ctx.request.body
     // 检查用户名是否被注册
     let count = await ctx.model.User.countDocuments({name:username})
     if(count > 0){
@@ -82,17 +82,21 @@ class AuthController extends Controller {
     if(username.indexOf('@') != -1){
       throw '用户名格式不合法'
     }
-    if(!(/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email))){
-      throw '电子邮箱格式不正确，请检查'
-    }
-    // 检查邮箱是否被占用
-    count = await ctx.model.User.countDocuments({email})
-    if(count > 0){
-      throw '电子邮箱地址已被注册，请更换'
-    }
+    
     if(password.length < 8){
       throw '密码长度小于8位，请重新设置'
     }
+    if(password !=passwordConfirm){
+        throw '两次密码输入不一致'
+    }
+    if(!(/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email))){
+        throw '电子邮箱格式不正确，请检查'
+      }
+      // 检查邮箱是否被占用
+      count = await ctx.model.User.countDocuments({email})
+      if(count > 0){
+        throw '电子邮箱地址已被注册，请更换'
+      }
     let newUser = new ctx.model.User({
       name:username,
       passwordHash:ctx.helper.hash(password),
