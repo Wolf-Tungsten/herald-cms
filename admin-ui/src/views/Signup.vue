@@ -1,22 +1,31 @@
 <template>
-  <div class="login-view" v-loading="loading">
+  <div class="signup-view" v-loading="loading">
     <img src="../assets/herald-cms-logo.png" style="width:80px;height:80px;margin-bottom:10px;" />
     <div style="margin-bottom:30px;font-size:20px;">新用户注册</div>
-    <el-form ref="form" :model="form" label-width="auto">
-      <el-form-item label="登录名" :error="usernameError">
-        <el-input v-model="form.username" placeholder="用户名/电子邮箱/电话号码"></el-input>
-      </el-form-item>
-      <el-form-item label="密码" :error="passwordError">
-        <el-input v-model="form.password" placeholder="登录密码" type="password"></el-input>
-      </el-form-item>
-      <el-form-item label="验证码" v-if="needCaptcha" :error="captchaError">
-        <el-input v-model="form.captchaCode" placeholder="此次登陆需要验证码"></el-input>
-      </el-form-item>
-      <div v-html="captchaData" style="margin-bottom:10px;"></div>
+
+    <el-form ref="form" :model="form" label-width="auto" >
+      <el-form-item label="用户名" :error="usernameError" >
+        <el-input v-model="form.username" placeholder="用户名"></el-input>
+			</el-form-item>
+			<el-form-item label="密码" :error="passwordError">
+        <el-input v-model="form.password" placeholder="密码(至少8位)"></el-input>
+			</el-form-item>
+			<el-form-item label="确认密码" :error="pwdconfirmError">
+        <el-input v-model="form.pwdConfirm" placeholder="确认密码"></el-input>
+			</el-form-item>
+			<el-form-item label="邮箱" :error="emailError">
+        <el-input v-model="form.email" placeholder="邮箱地址"></el-input>
+			</el-form-item>
+			<el-form-item label="联系电话" :error="phoneNumberError">
+        <el-input v-model="form.phoneNum" placeholder="联系电话"></el-input>
+			</el-form-item>
     </el-form>
-    <el-button type="primary" @click="login" style="width:100%;">登录</el-button>
+    <el-button type="primary" @click="login" style="width:100%;">注册</el-button>
     <div style="margin-top:20px;font-size:12px;color:#909399">先声内容管理 • 「中国特色」的开源CMS</div>
+  
   </div>
+  
+
 </template>
 
 <script>
@@ -27,52 +36,54 @@ export default {
   data() {
     return {
       loading:false,
-      needCaptcha: false,
-      captchaData:'',
       form: {
-        username: "",
-        password: "",
-        captchaCode: ""
-      },
+        username:"", 
+        password:"", 
+        email:"", 
+        phoneNumber:"", 
+        passwordConfirm:""
+			},
+			emailError:"",
       usernameError: "",
       passwordError: "",
-      captchaError: ""
+      pwdconfirmError:"",
+      phoneNumberError:""
     };
   },
   methods: {
     async login() {
       this.loading = true
-      this.captchaError = ''
-      this.usernameError = ''
-      this.passwordError = ''
-      let res = await this.$axios.post("/login", this.form);
+      this.emailError="";
+      this.usernameError= "";
+      this.passwordError= "";
+      this.pwdconfirmError="";
+      this.phoneNumberError="";
+
+      let res = await this.$axios.post("/register", this.form);
       this.loading = false
       if (res.data.success) {
-        if (res.data.result.needCaptcha) {
-          this.needCaptcha = true
-          if (this.needCaptcha) {
-            // 说明验证码输错了
-            this.captchaError = "验证码输入有误";
+        this.$message({
+          message: "注册完成，请继续完成激活",
+          type: "success",
+          onClose(){
+            this.$router.replace({name:'activate'})
           }
-          this.captchaData = res.data.result.captchaData
-        } else {
-          //登录成功逻辑
-          if(res.data.result.isAdmin || res.data.result.isAuthor){
-            this.$store.commit('login', res.data.result.token)
-            this.$router.replace({name:'column'})
-          } else {
-            // 如果是用户就跳转到postLoginUrl
-            window.location = res.data.result.postLoginUrl
-          }
-        }
+        });
       } else {
-        if (res.data.reason === "用户未激活") {
-          this.$router.replace({ name: "activate" });
-        } else if (res.data.reason.indexOf("不存在") !== -1) {
+        if (res.data.reason === "用户名已占用，请更换") {
           this.usernameError = res.data.reason;
-        } else if (res.data.reason.indexOf("密码错误") !== -1) {
+        } else if (res.data.reason.indexOf("用户名格式不合法") !== -1) {
+          this.usernameError = res.data.reason;
+				}else if (res.data.reason.indexOf("密码长度小于8位，请重新设置") !== -1) {
           this.passwordError = res.data.reason;
-        } else {
+        }else if (res.data.reason.indexOf("两次密码输入不一致") !== -1) {
+          this.pwdconfirmError = res.data.reason;
+        }else if (res.data.reason.indexOf("电子邮箱格式不正确，请检查") !== -1) {
+          this.emailError = res.data.reason;
+				}else if (res.data.reason.indexOf("电子邮箱地址已被注册，请更换") !== -1) {
+          this.emailError = res.data.reason;
+        }
+				else {
           this.$message.error(res.data.reason);
         }
       }
@@ -82,7 +93,7 @@ export default {
 </script>
 
 <style scoped>
-.login-view {
+.signup-view {
   position: fixed;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   padding: 40px;
