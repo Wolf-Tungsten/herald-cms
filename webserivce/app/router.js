@@ -17,5 +17,11 @@ module.exports = app => {
   router.post('/api/v1/column/create', controller.column.create);
   router.get('/api/v1/column/children', controller.column.findChildColumns);
 
+  // 权限管理相关路由
+  router.get('/api/v1/permission/column', controller.permission.getColumnPermission)
+  router.get('/api/v1/permission/user-info', controller.permission.getUserInfoByEmail)
+  router.post('/api/v1/permission/column', controller.permission.set)
+  router.delete('/api/v1/permission/column', controller.permission.cancel)
+
   router.get('/', controller.home.index);
 };

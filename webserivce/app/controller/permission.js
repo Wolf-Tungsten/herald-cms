@@ -6,7 +6,7 @@ class PermissionController extends Controller {
 
   async getUserInfoByEmail() {
     let {email} = this.ctx.request.query
-    let userInfo = await ctx.getUserInfo()
+    let userInfo = await this.ctx.getUserInfo()
     if(!userInfo.isAdmin){
         throw '无权操作'
     }
@@ -26,17 +26,27 @@ class PermissionController extends Controller {
   async getColumnPermission() {
     // 获取指定栏目所有的授权
     let { columnId } = this.ctx.request.query
-    let userInfo = await ctx.getUserInfo()
+    let userInfo = await this.ctx.getUserInfo()
     if(!userInfo.isAdmin){
         throw '无权操作'
     }
     let res = await this.ctx.model.Permission.find({columnId})
+    res = await Promise.all(res.map(async (c) => {
+      let user = await this.ctx.model.User.findById(c.userId)
+      return {
+        name:user.name,
+        email:user.email,
+        phoneNumber:user.phoneNumber,
+        userId:c.userId,
+        level:c.level === 'publish'? '发布权限':'编辑权限'
+      }
+    }))
     return res
   }
 
   async getUserPermission(){
     let { userId } = this.ctx.request.query
-    let userInfo = await ctx.getUserInfo()
+    let userInfo = await this.ctx.getUserInfo()
     if(!userInfo.isAdmin){
         throw '无权操作'
     }
@@ -53,7 +63,7 @@ class PermissionController extends Controller {
   async cancelAdmin(){
 
   }
-  
+
   async set() {
     const { ctx } = this;
     let userInfo = await ctx.getUserInfo()
@@ -68,7 +78,7 @@ class PermissionController extends Controller {
     if(!userCheck){
         throw '授权用户不存在'
     }
-    let columnCheck = await ctx.model.Column.findById({columnId})
+    let columnCheck = await ctx.model.Column.findById(columnId)
     if(!columnCheck){
         throw '授权栏目不存在'
     }
