@@ -6,7 +6,7 @@ class AuthController extends Controller {
   // 用户登录逻辑
   /**
  * @api {post} /login 用户登录
- * @apiVersion v1
+ * @apiVersion 1.0.0
  * @apiName Login
  * @apiGroup Auth
  * 
@@ -29,9 +29,12 @@ class AuthController extends Controller {
  * @apiSuccess (200) {String} token 用户身份凭据
  * 
  *
- * @apiError 用户名/邮箱地址/手机号码不存在 由于 username 参数缺失导致
- * @apiError 用户未激活 正在登录的用户没有通过邮箱验证激活
- * @apiError 密码错误 密码错误
+ * @apiError (400) {String} UsernameNotExist
+ * 用户名/邮箱地址/手机号码不存在
+ * @apiError (400) {String} UserNotActivated
+ * 用户未激活
+ * @apiError (400) {String} PasswordError
+ * 密码错误
  * 
  */
   async login() {
@@ -103,7 +106,7 @@ class AuthController extends Controller {
   // 用户注册
 /**
  * @api {post} /signup 用户注册
- * @apiVersion v1
+ * @apiVersion 1.0.0
  * @apiName SignUp
  * @apiGroup Auth
  * 
@@ -116,14 +119,21 @@ class AuthController extends Controller {
  * @apiParam {String} email 电子邮箱
  * @apiParam {String} phoneNumber 手机号码
  * 
- * @apiSuccessExample 注册成功
+ * @apiSuccessExample 
+ * 注册成功
  * 
- * @apiError 用户名已占用，请更换
- * @apiError 用户名格式不合法
- * @apiError 密码长度小于8位，请重新设置
- * @apiError 两次密码输入不一致
- * @apiError 电子邮箱格式不正确，请检查
- * @apiError 电子邮箱地址已被注册，请更换
+ * @apiErrorExample 
+ * 用户名已占用，请更换
+ * @apiErrorExample
+ * 用户名格式不合法
+ * @apiErrorExample
+ * 密码长度小于8位，请重新设置
+ * @apiErrorExample
+ * 两次密码输入不一致
+ * @apiErrorExample
+ * 电子邮箱格式不正确，请检查
+ * @apiErrorExample
+ * 电子邮箱地址已被注册，请更换
  * 
  */
   async signup() {
@@ -165,7 +175,7 @@ class AuthController extends Controller {
   // 请求激活
   /**
  * @api {post} /request-verify 请求邮箱激活验证
- * @apiVersion v1
+ * @apiVersion 1.0.0
  * @apiName RequestVerify
  * @apiGroup Auth
  * 
@@ -174,10 +184,13 @@ class AuthController extends Controller {
  * 
  * @apiParam {String} email 电子邮箱
  * 
- * @apiSuccessExample 邮件已发送，请注意查收
+ * @apiSuccessExample 
+ * 邮件已发送，请注意查收
  * 
- * @apiError 电子邮箱未注册，请检查 
- * @apiError 验证请求频率过高，请1分钟后重试
+ * @apiErrorExample
+ * 电子邮箱未注册，请检查 
+ * @apiErrorExample
+ * 验证请求频率过高，请1分钟后重试
  * 
  */
   async requestVerify() {
@@ -201,7 +214,7 @@ class AuthController extends Controller {
 
    /**
  * @api {post} /activate 激活用户
- * @apiVersion v1
+ * @apiVersion 1.0.0
  * @apiName Activate
  * @apiGroup Auth
  * 
@@ -210,10 +223,13 @@ class AuthController extends Controller {
  * @apiParam {String} email 电子邮箱
  * @apiParam {String} emailCode 电子邮箱收到的验证码
  * 
- * @apiSuccessExample 激活成功
+ * @apiSuccessExample
+ * 激活成功
  * 
- * @apiError 邮箱地址未注册或已激活 
- * @apiError 验证码无效
+ * @apiErrorExample
+ * 邮箱地址未注册或已激活 
+ * @apiErrorExample
+ * 验证码无效
  * 
  */
   async activate() {
@@ -238,7 +254,7 @@ class AuthController extends Controller {
 
    /**
  * @api {post} /reset-password 重置密码
- * @apiVersion v1
+ * @apiVersion 1.0.0
  * @apiName PasswordReset
  * @apiGroup Auth
  * 
@@ -248,10 +264,13 @@ class AuthController extends Controller {
  * @apiParam {String} emailCode 电子邮箱收到的验证码
  * @apiParam {String} newPassword 新的密码
  * 
- * @apiSuccessExample 密码重置成功
+ * @apiSuccessExample
+ * 密码重置成功
  * 
- * @apiError 邮箱地址未注册 
- * @apiError 验证码无效
+ * @apiErrorExample
+ * 邮箱地址未注册 
+ * @apiErrorExample
+ * 验证码无效
  * 
  */
   async resetPassword() {
