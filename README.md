@@ -7,6 +7,7 @@
 Herald-CMS 是一个 Headless 的内容管理系统。系统以 API 的形式向外提供服务，网站运营者依托 Herald-CMS 提供的外部接口，可使用任意技术框架、完全自主的开发面向用户的**前端站**，提供最大的开发灵活度。
 
 Herald-CMS 与传统 CMS 最大的区别在于不提供模板渲染系统，理由如下：
+
 * 前端开发魔法日新月异、各种框架层出不穷，使用模板渲染会很大程度的限制这些技术的使用。
 * 用户网站的服务可能不仅仅是内容发布，而在一个局限的 CMS 站点之上所能实现的功能终归是有限的，Herald-CMS 以纯后端服务的形式展示，能够为业务扩展提供最大的灵活性
 * （编不下去了……
@@ -25,13 +26,56 @@ Herald-CMS 接口完全开放，实际上用户可以自行实现管理后台，
 
 ## 功能&接口&开发需求
 
-### 身份认证
+### 身份认证-auth
+
+**数据模型**
+
+```javascript
+{
+    name: { type: String },
+
+    passwordHash: { type: String },
+
+    attemptCount: {type:Number, default:0}, // 出现错误登录验证的计数
+    captchaCode: {type:String, default:''},
+    tokenHash: {type: String, default:''},
+    tokenExpireTime: {type: Number, default:0},
+    smsCode: {type: String, default:''},
+    smsCodeExpireTime: {type: Number, default:0},
+    phoneNumber: { type:String, default:'' },
+    email: {type:String, default:''},
+    emailCode: {type:String, default:''},
+    emailCodeExpireTime:{type:Number, default:0},
+    extraInfoJson: {type:Map, default:{}},
+    isAdmin: {type:Boolean, default:false},
+    isAuthor: {type:Boolean, default:false},
+    isActivated: {type:Boolean, default:false}
+}
+```
+
+**接口列表**
+
+| 接口url                  | 请求方式 | 请求参数                                                                        | 响应参数                                                                                                                                                                                 | 备注                       |
+| ---------------------- | ---- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| /api/v1/login          | POST | {        username,
+        password: ,
+        captchaCode}                 | {
+<br/>        needCaptcha:false,
+<br/>        isAdmin:user.isAdmin,
+<br/>        isAuthor:user.isAuthor,
+<br/>        postLoginUrl:webPostLoginURL,
+<br/>        token
+<br/>      } | 仅列出了成功的相应参数，登陆失败的响应见后端代码 |
+| /api/v1/register       | POST | {username,  password,          email,         phoneNumber, passwordConfirm} |                                                                                                                                                                                      | 返回各种验证失败的错误              |
+| /api/v1/request-verify | POST | {email}                                                                     |                                                                                                                                                                                      | 发送验证邮件                   |
+| /api/v1/activate       | POST | { email, emailCode }                                                        |                                                                                                                                                                                      | 激活账号                     |
+| /api/v1/reset-password | POST | { email, emailCode, newPassword }                                           |                                                                                                                                                                                      |                          |
 
 ### 栏目管理 - Column
 
-数据模型：
+**数据模型**
 
-```
+```javascript
 {
     _id: { type: ObjectId },
     code: { type: String }, // 便捷栏目代码，随机数字字母组合，便于前端站开发使用
@@ -47,14 +91,40 @@ Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「
 
 
 
-**接口** ：`POST /api/v1/column/create`
+**接口列表**
 
-**参数** ：
-
-- parentId - 父栏目Id
-- name - 栏目名称
+| 接口url                   | 请求方式 | 请求参数             | 响应参数          | 备注              |
+|:----------------------- | ---- | ---------------- | ------------- | --------------- |
+| /api/v1/column          | GET  |                  | {所有column文档}  | column文档格式见数据模型 |
+| /api/v1/column/create   | POST | {name, parentId} |               |                 |
+| /api/v1/column/children | GET  | {_id}            | {column子栏目文档} | column文档格式见数据模型 |
 
 ### 权限管理 - Permission
+
+**数据类型**
+
+```javascript
+{
+    userId: { type: String },
+    columnId: { type: String },
+    level: { type: String },
+}
+```
+
+**接口列表**
+
+| 接口url                        | 请求方式   | 请求参数                        | 响应参数                                                                                                                                                                                                        | 备注                          |
+| ---------------------------- | ------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| /api/v1/permission/column    | GET    | { columnId }                | {
+<br/>        name:user.name,
+<br/>        email:user.email,
+<br/>        phoneNumber:user.phoneNumber,
+<br/>        userId:c.userId,
+<br/>        level:c.level === 'publish'? '发布权限':'编辑权限'
+<br/>      } |                             |
+| /api/v1/permission/user-info | GET    | {email}                     | {<br/>        name:user.name,<br/>        id:user._id,<br/>        email:user.email,<br/>        phoneNumber:user.phoneNumber<br/>      }                                                              |                             |
+| /api/v1/permission/column    | POST   | { level, userId, columnId } |                                                                                                                                                                                                             | 使用getUserInfo()判断用户是否为admin |
+| /api/v1/permission/column    | DELETE | {userId, columnId}          |                                                                                                                                                                                                             | 删除栏目                        |
 
 **站点管理员角色**
 
@@ -65,7 +135,3 @@ Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「
 **编辑角色**
 
 编辑角色是相对栏目而言的。通过 Permission 表中的记录判别。
-
-
-
-
