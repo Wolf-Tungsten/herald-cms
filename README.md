@@ -53,13 +53,23 @@ Herald-CMS 接口完全开放，实际上用户可以自行实现管理后台，
 
 **接口列表**
 
-| 接口url                  | 请求方式 | 请求参数                                                                        | 响应参数                                                                                                                                                                                 | 备注                       |
-| ---------------------------- | ------ | --------------------------- | ------------------- | --------------------------- |
-| /api/v1/login          | POST | {       <br> username,<br>password ,<br>captchaCode<br>}                 | {<br>needCaptcha:false,<br>isAdmin:user.isAdmin,<br>isAuthor:user.isAuthor,<br>postLoginUrl:webPostLoginURL,<br>token<br>} | 仅列出了成功的相应参数，登陆失败的响应见后端代码 |
-| /api/v1/register       | POST | {<br>username,  <br>password,          <br>email,         phoneNumber, <br>passwordConfirm<br>} |                                                                                                                                                                                      | 返回各种验证失败的错误              |
-| /api/v1/request-verify | POST | {<br>email<br>}                                                                     |                                                                                                                                                                                      | 发送验证邮件                   |
-| /api/v1/activate       | POST | { <br>email, <br>emailCode <br>}                                                        |                                                                                                                                                                                      | 激活账号                     |
-| /api/v1/reset-password | POST | { <br>email, <br>emailCode, <br>newPassword <br>}                                           |                                                                                                                                                                                      |                          |
+| 接口功能 | 接口url | 请求方式 | 请求参数  | 响应参数  | 备注 |
+| :-: | --- | --- | --- | --- | --- |
+| 用户登录 | /api/v1/login | POST | { <br> username,<br>password ,<br>captchaCode<br>} | {<br>needCaptcha:false,<br>isAdmin:user.isAdmin,<br>isAuthor:user.isAuthor,<br>postLoginUrl:webPostLoginURL,<br>token<br>} | 仅列出了成功的相应参数，登陆失败的响应见后端代码 |
+| 用户注册   | /api/v1/signup | POST | {<br />username,
+password, 
+email, phoneNumber, 
+passwordConfirm
+} | 返回各种验证失败的错误                           ||
+| 请求邮箱验证 | /api/v1/request-verify | POST                                                                             | {<br/>email
+} | 发送验证邮件                                     ||
+| 激活用户   | /api/v1/activate | POST                                                            | { <br/>email, 
+emailCode
+} | 激活账号                                         ||
+| 密码重置 | /api/v1/reset-password | POST                                           | { <br/>email, 
+emailCode, 
+newPassword 
+} | 返回重置结果 ||
 
 ### 栏目管理 - Column
 
@@ -83,11 +93,11 @@ Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「
 
 **接口列表**
 
-| 接口url                   | 请求方式 | 请求参数             | 响应参数          | 备注              |
-|:----------------------- | ---- | ---------------- | ------------- | --------------- |
-| /api/v1/column          | GET  |                  | {所有column文档}  | column文档格式见数据模型 |
-| /api/v1/column/create   | POST | {<br>name, parentId<br>} |               |                 |
-| /api/v1/column/children | GET  | {<br>_id<br>}            | {column子栏目文档} | column文档格式见数据模型 |
+| 接口url                 | 请求方式 | 请求参数                 | 响应参数               | 备注                     |
+| :---------------------- | -------- | ------------------------ | ---------------------- | ------------------------ |
+| /api/v1/column          | GET      |                          | 以树状格式返回栏目结构 | column文档格式见数据模型 |
+| /api/v1/column/create   | POST     | {<br>name, parentId<br>} |                        |                          |
+| /api/v1/column/children | GET      | {<br>_id<br>}            | {column子栏目文档}     | column文档格式见数据模型 |
 
 ### 权限管理 - Permission
 
@@ -103,12 +113,12 @@ Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「
 
 **接口列表**
 
-| 接口url                        | 请求方式   | 请求参数                        | 响应参数                                                                                                                                                                                                        | 备注                          |
-| ---------------------------- | ------ | --------------------------- | ------------------- | --------------------------- |
-| /api/v1/permission/column    | GET    | { columnId }                | {<br> name:user.name,<br>email:user.email,<br>phoneNumber:user.phoneNumber,<br>userId:c.userId,<br>level:c.level === 'publish'? '发布权限':'编辑权限'} |                             |
-| /api/v1/permission/user-info | GET    | { <br>email <br>}                     | {<br>name:user.name,<br>id:user._id,<br>email:user.email,<br>phoneNumber:user.phoneNumber<br>}                                                              |                             |
-| /api/v1/permission/column    | POST   | { <br>level, userId, columnId } |                                                                                                                                                                                                             | 使用getUserInfo()判断用户是否为admin |
-| /api/v1/permission/column    | DELETE | {<br>userId, columnId<br>}          |                                                                                                                                                                                                             | 删除栏目                        |
+| 接口url                      | 请求方式 | 请求参数                        | 响应参数                                                                                                                                               | 备注                                 |
+| ---------------------------- | -------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| /api/v1/permission/column    | GET      | { columnId }                    | {<br> name:user.name,<br>email:user.email,<br>phoneNumber:user.phoneNumber,<br>userId:c.userId,<br>level:c.level === 'publish'? '发布权限':'编辑权限'} |                                      |
+| /api/v1/permission/user-info | GET      | { <br>email <br>}               | {<br>name:user.name,<br>id:user._id,<br>email:user.email,<br>phoneNumber:user.phoneNumber<br>}                                                         |                                      |
+| /api/v1/permission/column    | POST     | { <br>level, userId, columnId } |                                                                                                                                                        | 使用getUserInfo()判断用户是否为admin |
+| /api/v1/permission/column    | DELETE   | {<br>userId, columnId<br>}      |                                                                                                                                                        | 删除栏目                             |
 
 **站点管理员角色**
 

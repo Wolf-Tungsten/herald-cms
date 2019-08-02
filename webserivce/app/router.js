@@ -7,7 +7,7 @@ module.exports = app => {
   const { router, controller } = app;
   // 身份认证相关路由
   router.post('/api/v1/login', controller.auth.login);
-  router.post('/api/v1/register', controller.auth.register);
+  router.post('/api/v1/signup', controller.auth.signup);
   router.post('/api/v1/request-verify', controller.auth.requestVerify);
   router.post('/api/v1/activate', controller.auth.activate);
   router.post('/api/v1/reset-password', controller.auth.resetPassword);

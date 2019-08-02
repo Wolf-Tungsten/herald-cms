@@ -59,7 +59,7 @@ export default {
       this.pwdconfirmError="";
       this.phoneNumberError="";
 
-      let res = await this.$axios.post("/register", this.form);
+      let res = await this.$axios.post("/signup", this.form);
       this.loading = false
       let that = this
       if (res.data.success) {
