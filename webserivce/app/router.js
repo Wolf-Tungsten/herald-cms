@@ -24,6 +24,8 @@ module.exports = app => {
   router.get('/api/v1/permission/user-info', controller.permission.getUserInfoByEmail)
   router.get('/api/v1/permission/user-column', controller.permission.getUserPermission)
 
+  // 文章管理路由
+  router.post('/api/v1/article/create', controller.article.create)
 
   router.get('/', controller.home.index);
 };

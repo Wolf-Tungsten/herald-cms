@@ -28,7 +28,7 @@
           <div class="subtitle">创建文章</div>
           <div class="explain-text">您可以在此栏目创建文章，完成文章创建后将带领您前往编辑页面进行创作。创建文章不会直接向用户发布任何内容，文章只有在您确认发布/送审通过后才会公开展示。</div>
           <div class="function-block-body">
-            <el-button type="primary" icon="el-icon-edit">创建文章</el-button>
+            <el-button type="primary" icon="el-icon-edit" @click="createArticle" v-loading="creatingArticle">创建文章</el-button>
           </div>
         </div>
 
@@ -55,7 +55,8 @@ export default {
       currentOpId: "",
       permissionList: [],
       hasPublishPermission: false,
-      hasEditPermission: false
+      hasEditPermission: false,
+      creatingArticle:false
     };
     //----
   },
@@ -68,6 +69,7 @@ export default {
       this.defaultExpand = [res.data.result._id];
       // TODO 加载待审核/被拒稿列表
       this.current = res.data.result
+      this.loadCurrent(this.current._id)
     },
     async loadCurrent(id) {
       this.currentOpId = id;
@@ -79,6 +81,12 @@ export default {
     nodeClick(col) {
       this.loadCurrent(col._id);
       this.current = col
+    },
+    async createArticle(){
+      this.creatingArticle = true
+      let res = await this.$axios.post('/article/create', {columnId:this.currentOpId})
+      console.log(res)
+      this.creatingArticle = false
     }
   },
   async created() {
