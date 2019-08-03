@@ -7,9 +7,6 @@ class ArticleController extends Controller {
   async create() {
     const { ctx } = this;
     let userInfo = await this.ctx.getUserInfo()
-    if(!userInfo.isAdmin){
-      throw 401
-    }
     let { columnId } = ctx.request.body
     if(!columnId){
         throw '未指定栏目'

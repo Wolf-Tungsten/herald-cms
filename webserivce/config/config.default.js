@@ -16,7 +16,6 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   let configYaml = yaml.parse(fs.readFileSync(path.join(appInfo.baseDir, 'herald-cms-config.yml'), 'utf8'))
-  console.log(configYaml.domainWhiteList)
   const config = exports = {
     security: {
       csrf: {

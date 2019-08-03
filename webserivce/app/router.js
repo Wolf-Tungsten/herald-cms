@@ -23,6 +23,7 @@ module.exports = app => {
   router.delete('/api/v1/permission/column', controller.permission.cancel)
   router.get('/api/v1/permission/user-info', controller.permission.getUserInfoByEmail)
   router.get('/api/v1/permission/user-column', controller.permission.getUserPermission)
+  router.get('/api/v1/permission/article', controller.permission.checkArticlePermission)
 
   // 文章管理路由
   router.post('/api/v1/article/create', controller.article.create)

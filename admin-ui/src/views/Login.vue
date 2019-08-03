@@ -63,7 +63,7 @@ export default {
           //登录成功逻辑
           if(res.data.result.isAdmin || res.data.result.isAuthor){
             this.$store.commit('login', res.data.result.token)
-            this.$router.replace({name:'column'})
+            this.$router.replace({name:'article'})
           } else {
             // 如果是用户就跳转到postLoginUrl
             window.location = res.data.result.postLoginUrl

@@ -85,7 +85,11 @@ export default {
     async createArticle(){
       this.creatingArticle = true
       let res = await this.$axios.post('/article/create', {columnId:this.currentOpId})
-      console.log(res)
+      if(res.data.success){
+        this.$router.push({path:`/editor/${res.data.result}`})
+      } else {
+        this.$message.error(res.data.reason)
+      }
       this.creatingArticle = false
     }
   },

@@ -6,6 +6,7 @@ import Login from './views/Login.vue'
 import Activate from './views/Activate.vue'
 import Signup from './views/Signup.vue'
 import Article from './views/Article.vue'
+import Editor from './views/Editor.vue'
 
 Vue.use(Router)
 
@@ -40,7 +41,12 @@ window.$router  = new Router({
       name: 'signup',
       component: Signup
     },
-    
+    {
+      path: '/editor/:articleId',
+      name: 'editor',
+      component: Editor,
+      meta:{displayName:"编辑文章"}
+    },
   ]
 })
 

@@ -112,6 +112,18 @@ class PermissionController extends Controller {
     return '权限撤销成功'
   }
 
+
+  // 获取当前用户对于指定文章的权限
+  async checkArticlePermission(){
+    let { ctx } = this
+    let { articleId } = ctx.request.query
+    let article = await this.ctx.model.Article.findById(articleId)
+    if(!article){
+      throw '文章不存在'
+    }
+    let columnId = article.columnId
+    return await this.service.permission.checkPermission(columnId)
+  }
 }
 
 module.exports = PermissionController;

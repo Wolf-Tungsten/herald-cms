@@ -23,7 +23,6 @@ class PermissionService extends Service {
             await Promise.all(directColumn.map(async (d) => {
                 let children = await this.ctx.service.column.findChildColumnInList(d.id)
                 children.forEach(c => {
-                    console.log(c)
                     indirectColumn.push({
                         id: c.id,
                         level: d.level
