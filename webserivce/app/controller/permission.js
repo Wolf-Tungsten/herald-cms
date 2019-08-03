@@ -47,7 +47,7 @@ class PermissionController extends Controller {
   async getUserPermission(){
     let { userId } = this.ctx.request.query
     let userInfo = await this.ctx.getUserInfo()
-    if(!userInfo.isAdmin){
+    if(!userInfo.isAdmin && !userInfo.isAuthor){
         throw '无权操作'
     }
     if(!userId){
@@ -89,6 +89,9 @@ class PermissionController extends Controller {
         permissionCheck = new ctx.model.Permission({userId, level, columnId})
     }
     await permissionCheck.save()
+    // 更新 isAuthor 选项
+    userCheck.isAuthor = true
+    await userCheck.save()
     return '授权成功'
   }
 
@@ -99,7 +102,14 @@ class PermissionController extends Controller {
         throw '无权操作'
     }
     let { userId, columnId } = ctx.request.query
-    return await ctx.model.Permission.deleteMany({userId, columnId})
+    await ctx.model.Permission.deleteMany({userId, columnId})
+    // 更新 isAuthor
+    let count = await this.ctx.model.Permission.countDocuments({userId})
+    if(count === 0){
+      userInfo.isAuthor = false
+      await userInfo.save()
+    }
+    return '权限撤销成功'
   }
 
 }

@@ -3,7 +3,7 @@ const Service = require('egg').Service;
 class PermissionService extends Service {
     async getPermissionList(userId = null) {
         // 获取指定用户所有拥有权限的栏目
-        let userInfo = await this.ctx.userInfo()
+        let userInfo = await this.ctx.getUserInfo()
         if (!userId) {
             // 如果不指定userId，就是获取当前用户
             userId = userInfo._id
@@ -23,9 +23,10 @@ class PermissionService extends Service {
             await Promise.all(directColumn.map(async (d) => {
                 let children = await this.ctx.service.column.findChildColumnInList(d.id)
                 children.forEach(c => {
+                    console.log(c)
                     indirectColumn.push({
-                        id: d.columnId,
-                        level: c.level
+                        id: c.id,
+                        level: d.level
                     })
                 })
             }))
@@ -46,7 +47,7 @@ class PermissionService extends Service {
     }
 
     async checkPermission(columnId, userId = null){
-        let userInfo = await this.ctx.userInfo()
+        let userInfo = await this.ctx.getUserInfo()
         if (!userId) {
             // 如果不指定userId，就是获取当前用户
             userId = userInfo._id

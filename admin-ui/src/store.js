@@ -28,7 +28,7 @@ window.$store = new Vuex.Store({
       window.$router.replace({name:'login'})
     },
     setCurrentRouteName(state, routeName){
-      let { from, to } = routeName
+      let { _, to } = routeName
       state.currentRouteName = to.meta.displayName
     }
   },

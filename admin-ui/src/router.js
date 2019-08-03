@@ -5,6 +5,7 @@ import Column from './views/Column.vue'
 import Login from './views/Login.vue'
 import Activate from './views/Activate.vue'
 import Signup from './views/Signup.vue'
+import Article from './views/Article.vue'
 
 Vue.use(Router)
 
@@ -18,10 +19,16 @@ window.$router  = new Router({
       component: Activate
     },
     {
-      path: '/',
+      path: '/column',
       name: 'column',
       component: Column,
       meta:{displayName:"栏目配置"}
+    },
+    {
+      path: '/article',
+      name: 'article',
+      component: Article,
+      meta:{displayName:"文章管理"}
     },
     {
       path: '/login',
