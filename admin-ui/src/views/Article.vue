@@ -17,10 +17,20 @@
         <!-- 标题 -->
         <div style="height:48px;text-align:left;line-height:48px;font-size:30px;">
           {{current.name}}
-          <span class="explain-text">// 栏目文章管理</span>
+          <span class="explain-text">// 文章管理</span>
         </div>
         <div class="explain-text">在此页面进行对当前选中栏目中的文章进行管理</div>
 
+        <!-- 权限不足提示 -->
+        <div class="no-permission">⛔️抱歉，您无权操作此栏目！如有疑问请与站点管理员联系。</div>
+
+        <div class="function-block">
+          <div class="subtitle">创建文章</div>
+          <div class="explain-text">您可以在此栏目创建文章，完成文章创建后将带领您前往编辑页面进行创作。创建文章不会直接向用户发布任何内容，文章只有在您确认发布/送审通过后才会公开展示。</div>
+          <div class="function-block-body">
+            <el-button type="primary" icon="el-icon-edit">创建文章</el-button>
+          </div>
+        </div>
 
       </div>
     </el-main>
@@ -90,5 +100,17 @@ export default {
   text-align: left;
   font-size: 20px;
   margin-top: 30px;
+}
+.no-permission{
+   background: #FDFFB2;
+   padding: 10px;
+   border-radius: 8px;
+   margin-top: 20px;
+}
+.function-block-body{
+  margin-top:20px;
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 </style>
