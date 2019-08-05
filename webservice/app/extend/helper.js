@@ -42,5 +42,8 @@ module.exports = {
         text: `您的邮箱验证码是：${code}，15分钟内有效，请勿透露给他人`, // plain text body
         html: `<p>您请求的邮箱验证码是：</p><p style="font-size:24px;color:#13ACD9;font-weight:bolder;">${code}</p><p>15分钟内有效，请勿透露给他人</p>` // html body
       });
+    },
+    randomFromArray(arr){
+      return arr[Math.floor(Math.random()*arr.length)]
     }
   };

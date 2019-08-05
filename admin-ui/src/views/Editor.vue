@@ -41,15 +41,23 @@
           <el-input v-model="metaForm.refLink"></el-input>
         </el-form-item>
         <el-form-item label="封面图片">
+          <img v-if="coverUrl" :src="coverUrl" style="width:100%; height:auto; border-radius:4px;" />
+          <el-button v-if="coverUrl" @click="resetCover">重新选择封面</el-button>
           <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="coverUploadUrl"
+            :headers="uploadHeaders"
+            :data="uploadData"
+            name="file"
             list-type="picture"
-            :on-preview="handleCoverPictureCardPreview"
-            :on-remove="handleCoverRemove"
+            :on-success="handleCoverUploadSuccess"
             :multiple="false"
             :limit="1"
+            :file-list="coverFileList"
+            v-else
           >
-            <i class="el-icon-plus"></i>
+            <div style="border-radius:4px;border-style:solid;border-width:1px;border-color:#e6e6e6;padding:10px;width:150px;"><i class="el-icon-plus"></i></div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件<br/>请按照站点管理要求确定上传文件尺寸</div>
+            
           </el-upload>
         </el-form-item>
       </el-form>
@@ -89,6 +97,9 @@ export default {
   components: {},
   data() {
     return {
+      coverUploadUrl: `${window.baseURL}upload/cover-img`,
+      coverUrl:"",
+      coverFileList:[],
       loading: false,
       articleId: "",
       titleForm: {
@@ -148,8 +159,8 @@ export default {
           "|",
           "link",
           "insertTable",
-          'imageTextAlternative',
-          'imageUpload',
+          "imageTextAlternative",
+          "imageUpload",
           "|",
           "fontSize",
           "fontFamily",
@@ -175,12 +186,36 @@ export default {
       }
     };
   },
+  computed: {
+    uploadHeaders() {
+      let that = this;
+      return {
+        "Access-Token": that.$store.state.accessToken
+      };
+    },
+    uploadData() {
+      let that = this;
+      return {
+        articleId: that.articleId
+      };
+    }
+  },
   methods: {
     getContent() {
       console.log(this.editorData);
     },
-    handleCoverPictureCardPreview(file) {},
-    handleCoverRemove(file) {},
+    handleCoverUploadSuccess(response, file, fileList){
+      if(response.success){
+        this.coverUrl = response.result
+      } else {
+        this.coverFileList = []
+        this.$message.error('封面上传失败')
+      }
+    },
+    resetCover(){
+      this.coverFileList = []
+      this.coverUrl = ''
+    },
     onEditorReady() {
       console.log(this.editor.ui); //.componentFactory.names());
     }

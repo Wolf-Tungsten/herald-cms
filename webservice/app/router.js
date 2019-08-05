@@ -28,5 +28,7 @@ module.exports = app => {
   // 文章管理路由
   router.post('/api/v1/article/create', controller.article.create)
 
+  // 静态文件上传
+  router.post('/api/v1/upload/cover-img', controller.upload.uploadCoverImage)
   router.get('/', controller.home.index);
 };

@@ -34,7 +34,15 @@ module.exports = appInfo => {
         plugins: [],
       },
     },
-    mail:configYaml.mail
+    mail:configYaml.mail,
+    static:{
+      publicUrlPrefix:configYaml.publicUrlPrefix,
+      localStaticPath:configYaml.localStaticPath
+    },
+    multipart:{
+      fileSize: '1gb',
+      fileExtensions:['doc','docx','xls','xlsx','ppt','pptx','pdf']
+    }
   };
   config.webPostLoginURL = configYaml.webPostLoginURL
   // use for cookie sign key, should change to your own and keep security

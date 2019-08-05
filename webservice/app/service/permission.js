@@ -74,5 +74,14 @@ class PermissionService extends Service {
             return permission
         }
     }
+
+    async checkArticlePermission(articleId){
+        let article = await this.ctx.model.Article.findById(articleId)
+        if(!article){
+          throw '文章不存在'
+        }
+        let columnId = article.columnId
+        return await this.checkPermission(columnId)
+      }
 }
 module.exports = PermissionService;
