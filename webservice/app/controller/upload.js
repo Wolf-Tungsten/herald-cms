@@ -5,8 +5,30 @@ const sendToWormhole = require('stream-wormhole');
 class UploadController extends Controller {
 
   async uploadImage() {
-    const { ctx } = this;
+    
+    let stream = await this.ctx.getFileStream()
+    let { articleId } = stream.fields
+    let permissionCheck = await this.ctx.service.permission.checkArticlePermission(articleId)
+    if(permissionCheck === 'none'){
+      sendToWormhole(stream)
+      throw '权限不足'
+    }
+    if(!stream.filename.endsWith('png') && !stream.filename.endsWith('jpg') && !stream.filename.endsWith('jpeg')){
+      sendToWormhole(stream)
+      throw '图片文件格式错误'
+    }
+    
+    let savedFilename = await this.ctx.service.upload.saveUploadStreamToFile(stream)
 
+    // 创建记录
+    let uploadRecord = new this.ctx.model.Upload({
+        articleId,
+        resourceName: savedFilename,
+        type: 'image',
+    })
+    await uploadRecord.save()
+
+    return `${this.ctx.helper.randomFromArray(this.app.config.static.publicUrlPrefix)}${savedFilename}`
     
   }
 

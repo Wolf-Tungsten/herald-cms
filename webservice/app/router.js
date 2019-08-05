@@ -30,5 +30,6 @@ module.exports = app => {
 
   // 静态文件上传
   router.post('/api/v1/upload/cover-img', controller.upload.uploadCoverImage)
+  router.post('/api/v1/upload/img', controller.upload.uploadImage)
   router.get('/', controller.home.index);
 };
