@@ -91,6 +91,7 @@ import ImageToolbar from "@ckeditor/ckeditor5-image/src/imagetoolbar";
 import ImageCaption from "@ckeditor/ckeditor5-image/src/imagecaption";
 import ImageStyle from "@ckeditor/ckeditor5-image/src/imagestyle";
 import ImageUpload from "@ckeditor/ckeditor5-image/src/imageupload";
+import ImageUploadAdapterPlugin from "../editor/uploadAdapter"
 
 export default {
   name: "editor",
@@ -140,6 +141,7 @@ export default {
           ImageStyle,
           ImageUpload
         ],
+        extraPlugins:[ImageUploadAdapterPlugin],
         toolbar: [
           "undo",
           "redo",
@@ -206,6 +208,7 @@ export default {
     },
     handleCoverUploadSuccess(response, file, fileList){
       if(response.success){
+        console.log(fileList)
         this.coverUrl = response.result
       } else {
         this.coverFileList = []
@@ -238,6 +241,7 @@ export default {
       // 无权编辑，跳转回文章管理页
       this.$router.replace({ name: "article" });
     }
+    this.$store.commit('setCurrentArticleId', this.articleId)
   }
 };
 </script>

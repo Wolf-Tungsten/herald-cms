@@ -13,7 +13,8 @@ window.$store = new Vuex.Store({
   state: {
     isLogin:false,
     accessToken:'',
-    currentRouteName:''
+    currentRouteName:'',
+    currentArticleId:''
   },
   mutations: {
     login(state, accessToken){
@@ -30,6 +31,9 @@ window.$store = new Vuex.Store({
     setCurrentRouteName(state, routeName){
       let { _, to } = routeName
       state.currentRouteName = to.meta.displayName
+    },
+    setCurrentArticleId(state, articleId){
+      state.currentArticleId = articleId
     }
   },
   actions: {

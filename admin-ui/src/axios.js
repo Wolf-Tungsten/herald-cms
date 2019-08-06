@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const AxiosPlugins = {
     install: (Vue) => {
-        Vue.prototype.$axios = axios.create({
+        window.$axios = axios.create({
             baseURL:window.baseURL,
             transformResponse: function (data) {
                 // 对 data 进行任意转换处理
@@ -13,6 +13,7 @@ const AxiosPlugins = {
                 return data;
             }
         })
+        Vue.prototype.$axios = window.$axios
     }
 }
 
