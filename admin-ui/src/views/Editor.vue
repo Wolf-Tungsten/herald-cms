@@ -1,6 +1,6 @@
 <template>
   <el-container style="height:100%;" v-loading="loading">
-    <el-main style="margin-right:20px;">
+    <el-main style="padding-right:40px;">
       <el-form ref="titleForm" :model="titleForm" label-width="80px">
         <el-form-item label="文章标题">
           <el-input v-model="titleForm.title"></el-input>
@@ -12,8 +12,8 @@
             <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
           </div>
         </el-form-item>
-        <el-form-item label="文章视频">
-          <el-col :span="12">
+        <el-form-item label="视频/附件" >
+          <el-col :span="9">
             <div style="text-align:left;">
               <el-upload
                 :action="videoUploadUrl"
@@ -27,14 +27,12 @@
                 :on-remove="handleVideoFileRemove"
                 :before-upload="beforeVideoUpload"
               >
-                <el-button size="small" type="default">上传文章视频</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传mp4-H.264格式，大小不超过 1GB</div>
+                <el-button size="small" type="default">上传视频</el-button>
+                <div slot="tip" class="el-upload__tip">H.264格式，不超过 1GB</div>
               </el-upload>
             </div>
           </el-col>
-        </el-form-item>
-        <el-form-item label="文章附件">
-          <el-col :span="12">
+          <el-col :span="14" :offset="1">
             <div style="text-align:left;">
               <el-upload
                 :action="appendUploadUrl"
@@ -48,7 +46,7 @@
                 :on-remove="handleAppendFileRemove"
                 :before-upload="beforeAppendUpload"
               >
-                <el-button size="small" type="default">上传文章附件</el-button>
+                <el-button size="small" type="default">上传附件</el-button>
                 <div
                   slot="tip"
                   class="el-upload__tip"
@@ -57,7 +55,29 @@
             </div>
           </el-col>
         </el-form-item>
+        <el-form-item label="定时发布" v-if="permission === 'publish'">
+          <div style="text-align:left;">
+          <el-switch v-model="isScheduledPublish"></el-switch>
+          </div>
+        </el-form-item>
+        <el-form-item label="发布时间" v-if="isScheduledPublish">
+          <el-col :span="8">
+            <el-date-picker
+              type="datetime"
+              placeholder="定时发布时间"
+              v-model="publishDate"
+              style="width: 100%;"
+            ></el-date-picker>
+          </el-col>
+        </el-form-item>
       </el-form>
+      <div style="margin-top:20px;">
+        <el-button type="default" @click="save">保存</el-button>
+        <el-button type="primary" v-if="permission == 'publish'" @click="saveAndPublish">保存并发布</el-button>
+        <el-button type="primary" v-if="permission == 'edit'">保存并提交审核</el-button>
+        <el-button type="warning" v-if="permission == 'publish' && status === 'reviewing'">驳回审核请求</el-button>
+        <el-button type="danger">删除文章</el-button>
+      </div>
     </el-main>
     <el-aside class="aside">
       <div style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px;">
@@ -138,7 +158,7 @@ import ImageCaption from "@ckeditor/ckeditor5-image/src/imagecaption";
 import ImageStyle from "@ckeditor/ckeditor5-image/src/imagestyle";
 import ImageUpload from "@ckeditor/ckeditor5-image/src/imageupload";
 import ImageUploadAdapterPlugin from "../editor/uploadAdapter";
-
+import moment from 'moment'
 export default {
   name: "editor",
   components: {},
@@ -153,6 +173,8 @@ export default {
       appendFileList: [],
       loading: false,
       articleId: "",
+      permission:'none',
+      status:'draft',
       titleForm: {
         title: ""
       },
@@ -162,8 +184,10 @@ export default {
         isRefLink: false,
         refLink: ""
       }, //文章元数据
+      isScheduledPublish: false,
+      publishDate: '',
       editor: ClassicEditor,
-      editorData: "<p>初始内容</p>",
+      editorData: "",
       editorConfig: {
         language: "zh-cn",
         plugins: [
@@ -302,22 +326,43 @@ export default {
         ".mp4",
         ".txt"
       ];
-      let fileExt = '.' + file.name.split('.')[file.name.split('.').length -1]
+      let fileExt = "." + file.name.split(".")[file.name.split(".").length - 1];
       if (allowed.indexOf(fileExt) === -1) {
         this.$message.error("不支持的文件格式");
         return false;
       }
       return true;
     },
-    async handleVideoFileRemove(file, fileList) {
+    async handleVideoFileRemove(file) {
       await this.$axios.delete(
         `/upload/delete-file?fileId=${file.response.result.fileId}`
       );
     },
-    async handleAppendFileRemove(file, fileList) {
+    async handleAppendFileRemove(file) {
       await this.$axios.delete(
         `/upload/delete-file?fileId=${file.response.result.fileId}`
       );
+    },
+    async save(){
+      let articleId = this.articleId
+      let title = this.titleForm.title
+      let authorName = this.metaForm.authorName
+      let abstract = this.metaForm.abstract
+      let refLink = this.metaForm.refLink
+      let content = this.editorData
+      let res = await this.$axios.post('/article/save', {articleId, title, authorName, abstract, refLink, content})
+      if(res.data.success){
+        this.$message({
+          type:'success',
+          message:res.data.result
+        })
+      }else{
+        this.$message.error(res.data.reason)
+      }
+    },
+    async saveAndPublish(){
+      let publishTime = moment(this.publishDate)
+      console.log(+publishTime)
     }
   },
   async created() {
@@ -334,17 +379,41 @@ export default {
       permissionCheckRes.data.success &&
       permissionCheckRes.data.result !== "none"
     ) {
+      this.permission = permissionCheckRes.data.result
     } else {
       // 无权编辑，跳转回文章管理页
       this.$router.replace({ name: "article" });
     }
     this.$store.commit("setCurrentArticleId", this.articleId);
+    // 权限检查完毕，开始获取文章内容
+    let res = await this.$axios.get(`/article?articleId=${this.articleId}`)
+    let article = res.data.result
+    this.status = article.status
+    this.titleForm.title = article.title
+    this.metaForm.authorName = article.authorName
+    this.metaForm.abstract = article.abstract
+    this.metaForm.isRefLink = !!article.refLink
+    this.metaForm.refLink = article.refLink
+    this.editorData = article.content
+    this.videoFileList = article.videoList.map( v => {
+      return {
+        ...v,
+        response:{result:{fileId:v.fileId}}
+      }
+    })
+    this.appendFileList = article.appendFileList.map( f => {
+      return {
+        ...f,
+        response:{result:{fileId:f.fileId}}
+      }
+    })
+    this.coverUrl = article.coverUrl
   }
 };
 </script>
 
 <style>
 .ck-editor__editable_inline {
-  min-height: 400px;
+  min-height: 100px;
 }
 </style>

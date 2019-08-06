@@ -32,6 +32,12 @@ window.$router  = new Router({
       meta:{displayName:"文章管理"}
     },
     {
+      path: '/',
+      name: 'article',
+      component: Article,
+      meta:{displayName:"文章管理"}
+    },
+    {
       path: '/login',
       name: 'login',
       component: Login

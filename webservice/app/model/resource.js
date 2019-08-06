@@ -5,7 +5,7 @@ module.exports = app => {
   const ResourceSchema = new Schema({
     articleId: { type: String },
     resourceName: { type: String },
-    type: { type: String }, // image video file
+    type: { type: String }, // image video appendFile
     displayName: { type: String, default:''}
   });
 

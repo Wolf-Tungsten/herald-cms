@@ -22,7 +22,7 @@ class UploadController extends Controller {
     let savedFilename = await this.ctx.service.upload.saveUploadStreamToFile(stream)
 
     // 创建记录
-    let uploadRecord = new this.ctx.model.Upload({
+    let uploadRecord = new this.ctx.model.Resource({
         articleId,
         resourceName: savedFilename,
         type: 'image',
@@ -55,10 +55,10 @@ class UploadController extends Controller {
     await article.save()
 
     // 创建记录
-    let uploadRecord = new this.ctx.model.Upload({
+    let uploadRecord = new this.ctx.model.Resource({
         articleId,
         resourceName: savedFilename,
-        type: 'cover-image',
+        type: 'image',
     })
     await uploadRecord.save()
 
@@ -82,7 +82,7 @@ class UploadController extends Controller {
     let savedFilename = await this.ctx.service.upload.saveUploadStreamToFile(stream)
 
     // 创建记录
-    let uploadRecord = new this.ctx.model.Upload({
+    let uploadRecord = new this.ctx.model.Resource({
         articleId,
         resourceName: savedFilename,
         type: 'video',
@@ -108,7 +108,7 @@ class UploadController extends Controller {
     let savedFilename = await this.ctx.service.upload.saveUploadStreamToFile(stream)
 
     // 创建记录
-    let uploadRecord = new this.ctx.model.Upload({
+    let uploadRecord = new this.ctx.model.Resource({
         articleId,
         resourceName: savedFilename,
         type: 'appendFile',
@@ -124,7 +124,7 @@ class UploadController extends Controller {
 
   async deleteFile(){
     let { fileId } = this.ctx.request.query
-    let uploadRecord = await this.ctx.model.Upload.findById(fileId)
+    let uploadRecord = await this.ctx.model.Resource.findById(fileId)
     if(!uploadRecord){
       throw '文件不存在'
     }
@@ -132,7 +132,7 @@ class UploadController extends Controller {
     if(!article){
       await this.ctx.service.upload.deleteFile(article.resourceName)
     }
-    await this.ctx.model.Upload.deleteOne({_id:uploadRecord._id})
+    await this.ctx.model.Resource.deleteOne({_id:uploadRecord._id})
     return '删除成功'
   }
 

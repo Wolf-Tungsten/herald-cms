@@ -55,7 +55,7 @@ export default {
       this.$router.replace({ name: "login" });
       this.$axios.defaults.headers.common["Access-Token"] = "";
     } else {
-      this.$router.replace({ name: "article" });
+      //this.$router.replace({ name: "article" });
       this.$axios.defaults.headers.common[
         "Access-Token"
       ] = this.$store.state.accessToken;

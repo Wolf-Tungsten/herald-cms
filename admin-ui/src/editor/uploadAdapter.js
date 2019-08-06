@@ -19,7 +19,7 @@ class ImageUploadAdapter {
         })
 
         return {
-            default:res.result
+            default:res.data.result
         }
     }
 

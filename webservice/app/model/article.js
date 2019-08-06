@@ -11,8 +11,8 @@ module.exports = app => {
     abstract: { type: String,default:'' },
     refLink: { type:String, default: ''}, // 外链
     coverImg: { type: String, default:'' }, // 封面图片
-    createdTime: { type: Number },
-    status: { type: String },
+    lastModifiedTime: { type: Number },
+    status: { type: String }, // draft, reviewing, reject, published
     publishTime: { type: String, default:0 }, // 用于设置定时发布
     code: { type: String }, // 前端站使用的便捷Code
     topFixed: {type:Boolean, default:false} //置顶
