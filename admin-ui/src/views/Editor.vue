@@ -13,9 +13,48 @@
               :editor="editor"
               v-model="editorData"
               :config="editorConfig"
-              @ready="onEditorReady"
             ></ckeditor>
           </div>
+        </el-form-item>
+        <el-form-item label="文章视频">
+          <el-col :span="12">
+          <div style="text-align:left;">
+          <el-upload
+            :action="videoUploadUrl"
+            :headers="uploadHeaders"
+            :data="uploadData"
+            name="file"
+            list-type="text"
+            :multiple="false"
+            :file-list="videoFileList"
+            :show-file-list="true"
+            :on-remove="handleVideoFileRemove"
+          >
+            <el-button size="small" type="default">上传文章视频</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传mp4-H.264格式，大小不超过 1GB</div>
+          </el-upload>
+          </div>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="文章附件">
+          <el-col :span="12">
+          <div style="text-align:left;">
+          <el-upload
+            :action="appendUploadUrl"
+            :headers="uploadHeaders"
+            :data="uploadData"
+            name="file"
+            list-type="text"
+            :multiple="false"
+            :file-list="appendFileList"
+            :show-file-list="true"
+            :on-remove="handleAppendFileRemove"
+          >
+            <el-button size="small" type="default">上传文章附件</el-button>
+            <div slot="tip" class="el-upload__tip">大小不超过 1GB</div>
+          </el-upload>
+          </div>
+          </el-col>
         </el-form-item>
       </el-form>
     </el-main>
@@ -55,9 +94,15 @@
             :file-list="coverFileList"
             v-else
           >
-            <div style="border-radius:4px;border-style:solid;border-width:1px;border-color:#e6e6e6;padding:10px;width:150px;"><i class="el-icon-plus"></i></div>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件<br/>请按照站点管理要求确定上传文件尺寸</div>
-            
+            <div
+              style="border-radius:4px;border-style:solid;border-width:1px;border-color:#e6e6e6;padding:10px;width:150px;"
+            >
+              <i class="el-icon-plus"></i>
+            </div>
+            <div slot="tip" class="el-upload__tip">
+              只能上传jpg/png文件
+              <br />请按照站点管理要求确定上传文件尺寸
+            </div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -91,7 +136,7 @@ import ImageToolbar from "@ckeditor/ckeditor5-image/src/imagetoolbar";
 import ImageCaption from "@ckeditor/ckeditor5-image/src/imagecaption";
 import ImageStyle from "@ckeditor/ckeditor5-image/src/imagestyle";
 import ImageUpload from "@ckeditor/ckeditor5-image/src/imageupload";
-import ImageUploadAdapterPlugin from "../editor/uploadAdapter"
+import ImageUploadAdapterPlugin from "../editor/uploadAdapter";
 
 export default {
   name: "editor",
@@ -99,8 +144,12 @@ export default {
   data() {
     return {
       coverUploadUrl: `${window.baseURL}upload/cover-img`,
-      coverUrl:"",
-      coverFileList:[],
+      videoUploadUrl: `${window.baseURL}upload/video`,
+      appendUploadUrl: `${window.baseURL}upload/append`,
+      coverUrl: "",
+      coverFileList: [],
+      videoFileList: [],
+      appendFileList:[],
       loading: false,
       articleId: "",
       titleForm: {
@@ -141,7 +190,7 @@ export default {
           ImageStyle,
           ImageUpload
         ],
-        extraPlugins:[ImageUploadAdapterPlugin],
+        extraPlugins: [ImageUploadAdapterPlugin],
         toolbar: [
           "undo",
           "redo",
@@ -206,21 +255,25 @@ export default {
     getContent() {
       console.log(this.editorData);
     },
-    handleCoverUploadSuccess(response, file, fileList){
-      if(response.success){
-        console.log(fileList)
-        this.coverUrl = response.result
+    handleCoverUploadSuccess(response, file, fileList) {
+      if (response.success) {
+        console.log(fileList);
+        this.coverUrl = response.result;
       } else {
-        this.coverFileList = []
-        this.$message.error('封面上传失败')
+        this.coverFileList = [];
+        this.$message.error("封面上传失败");
       }
     },
-    resetCover(){
-      this.coverFileList = []
-      this.coverUrl = ''
+    resetCover() {
+      this.coverFileList = [];
+      this.coverUrl = "";
     },
-    onEditorReady() {
-      console.log(this.editor.ui); //.componentFactory.names());
+    async handleVideoFileRemove(file, fileList){
+      console.log(file, fileList)
+      await this.$axios.delete(`/upload/delete-file?fileId=${file.response.result.fileId}`)
+    },
+    async handleAppendFileRemove(file, fileList){
+      await this.$axios.delete(`/upload/delete-file?fileId=${file.response.result.fileId}`)
     }
   },
   async created() {
@@ -241,7 +294,13 @@ export default {
       // 无权编辑，跳转回文章管理页
       this.$router.replace({ name: "article" });
     }
-    this.$store.commit('setCurrentArticleId', this.articleId)
+    this.$store.commit("setCurrentArticleId", this.articleId);
   }
 };
 </script>
+
+<style>
+.ck-editor__editable_inline {
+    min-height: 400px;
+}
+</style>

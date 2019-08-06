@@ -6,6 +6,7 @@ module.exports = app => {
     articleId: { type: String },
     resourceName: { type: String },
     type: { type: String }, // image video file
+    displayName: { type: String, default:''}
   });
 
   return mongoose.model('Resource', ResourceSchema);

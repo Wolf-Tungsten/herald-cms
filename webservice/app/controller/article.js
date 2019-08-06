@@ -26,6 +26,15 @@ class ArticleController extends Controller {
     await newArticle.save()
     return newArticle._id
   }
+
+  async get(){
+    let { articleId } = this.ctx.request.query
+
+  }
+
+  async post(){
+    
+  }
 }
 
 module.exports = ArticleController;

@@ -22,5 +22,9 @@ class UploadService extends Service {
         })
         return newName
     }
+
+    async deleteFile(filename){
+        fs.unlinkSync(path.join(this.app.config.static.localStaticPath, filename))
+    }
 }
 module.exports = UploadService;
