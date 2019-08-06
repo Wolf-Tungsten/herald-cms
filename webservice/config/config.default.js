@@ -41,7 +41,18 @@ module.exports = appInfo => {
     },
     multipart:{
       fileSize: '1gb',
-      fileExtensions:['doc','docx','xls','xlsx','ppt','pptx','pdf']
+      fileExtensions:['doc','docx','xls','xlsx','ppt','pptx','pdf'],
+      whitelist:[
+        '.doc','.docx','.xls','.xlsx','.ppt','.pptx','.pdf','.zip',
+        '.apk',
+        '.jpg', '.jpeg', '.png', 
+        '.gif', '.bmp',
+        '.zip','.rar','.gz', '.tgz', '.gzip',
+        // video
+        '.mp3',
+        '.mp4',
+        '.txt'
+      ]
     }
   };
   config.webPostLoginURL = configYaml.webPostLoginURL

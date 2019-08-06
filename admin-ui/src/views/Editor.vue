@@ -9,51 +9,52 @@
       <el-form ref="contentForm" label-width="80px">
         <el-form-item label="文章内容">
           <div style="text-align:left;">
-            <ckeditor
-              :editor="editor"
-              v-model="editorData"
-              :config="editorConfig"
-            ></ckeditor>
+            <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
           </div>
         </el-form-item>
         <el-form-item label="文章视频">
           <el-col :span="12">
-          <div style="text-align:left;">
-          <el-upload
-            :action="videoUploadUrl"
-            :headers="uploadHeaders"
-            :data="uploadData"
-            name="file"
-            list-type="text"
-            :multiple="false"
-            :file-list="videoFileList"
-            :show-file-list="true"
-            :on-remove="handleVideoFileRemove"
-          >
-            <el-button size="small" type="default">上传文章视频</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传mp4-H.264格式，大小不超过 1GB</div>
-          </el-upload>
-          </div>
+            <div style="text-align:left;">
+              <el-upload
+                :action="videoUploadUrl"
+                :headers="uploadHeaders"
+                :data="uploadData"
+                name="file"
+                list-type="text"
+                :multiple="false"
+                :file-list="videoFileList"
+                :show-file-list="true"
+                :on-remove="handleVideoFileRemove"
+                :before-upload="beforeVideoUpload"
+              >
+                <el-button size="small" type="default">上传文章视频</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传mp4-H.264格式，大小不超过 1GB</div>
+              </el-upload>
+            </div>
           </el-col>
         </el-form-item>
         <el-form-item label="文章附件">
           <el-col :span="12">
-          <div style="text-align:left;">
-          <el-upload
-            :action="appendUploadUrl"
-            :headers="uploadHeaders"
-            :data="uploadData"
-            name="file"
-            list-type="text"
-            :multiple="false"
-            :file-list="appendFileList"
-            :show-file-list="true"
-            :on-remove="handleAppendFileRemove"
-          >
-            <el-button size="small" type="default">上传文章附件</el-button>
-            <div slot="tip" class="el-upload__tip">大小不超过 1GB</div>
-          </el-upload>
-          </div>
+            <div style="text-align:left;">
+              <el-upload
+                :action="appendUploadUrl"
+                :headers="uploadHeaders"
+                :data="uploadData"
+                name="file"
+                list-type="text"
+                :multiple="false"
+                :file-list="appendFileList"
+                :show-file-list="true"
+                :on-remove="handleAppendFileRemove"
+                :before-upload="beforeAppendUpload"
+              >
+                <el-button size="small" type="default">上传文章附件</el-button>
+                <div
+                  slot="tip"
+                  class="el-upload__tip"
+                >大小不超过 1GB，为了保证服务器安全，如需上传文件夹或遇到不支持的文件格式，请先制作成压缩文件后上传</div>
+              </el-upload>
+            </div>
           </el-col>
         </el-form-item>
       </el-form>
@@ -149,7 +150,7 @@ export default {
       coverUrl: "",
       coverFileList: [],
       videoFileList: [],
-      appendFileList:[],
+      appendFileList: [],
       loading: false,
       articleId: "",
       titleForm: {
@@ -268,12 +269,55 @@ export default {
       this.coverFileList = [];
       this.coverUrl = "";
     },
-    async handleVideoFileRemove(file, fileList){
-      console.log(file, fileList)
-      await this.$axios.delete(`/upload/delete-file?fileId=${file.response.result.fileId}`)
+    beforeVideoUpload(file) {
+      if (file.name.split(".")[file.name.split(".").length - 1] !== "mp4") {
+        this.$message.error("不支持的文件格式，请转换后重试");
+        return false;
+      }
+      return true;
     },
-    async handleAppendFileRemove(file, fileList){
-      await this.$axios.delete(`/upload/delete-file?fileId=${file.response.result.fileId}`)
+    beforeAppendUpload(file) {
+      let allowed = [
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".ppt",
+        ".pptx",
+        ".pdf",
+        ".zip",
+        ".apk",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".zip",
+        ".rar",
+        ".gz",
+        ".tgz",
+        ".gzip",
+        // video
+        ".mp3",
+        ".mp4",
+        ".txt"
+      ];
+      let fileExt = '.' + file.name.split('.')[file.name.split('.').length -1]
+      if (allowed.indexOf(fileExt) === -1) {
+        this.$message.error("不支持的文件格式");
+        return false;
+      }
+      return true;
+    },
+    async handleVideoFileRemove(file, fileList) {
+      await this.$axios.delete(
+        `/upload/delete-file?fileId=${file.response.result.fileId}`
+      );
+    },
+    async handleAppendFileRemove(file, fileList) {
+      await this.$axios.delete(
+        `/upload/delete-file?fileId=${file.response.result.fileId}`
+      );
     }
   },
   async created() {
@@ -301,6 +345,6 @@ export default {
 
 <style>
 .ck-editor__editable_inline {
-    min-height: 400px;
+  min-height: 400px;
 }
 </style>
