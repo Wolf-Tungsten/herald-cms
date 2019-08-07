@@ -154,7 +154,7 @@ class ArticleController extends Controller {
   }
 
   async delete() {
-    let { articleId } = this.ctx.request.body
+    let { articleId } = this.ctx.request.query
     return await this.ctx.service.article.delete(articleId)
   }
 

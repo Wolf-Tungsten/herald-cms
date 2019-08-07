@@ -214,8 +214,9 @@ export default {
       this.permissionList = res.data.result;
     },
     nodeClick(col) {
+
       this.loadCurrentColumn(col);
-      this.current = col;
+      this.currentColumn = col;
     },
     async createArticle() {
       this.creatingArticle = true;
@@ -230,10 +231,14 @@ export default {
       this.creatingArticle = false;
     },
     editArticle(index, list){
-
+      this.$router.push({path:`/editor/${list[index].id}`})
     },
-    deleteArticle(index, list){
-
+    async deleteArticle(index, list){
+      let articleId = list[index].id
+      let res = await this.$axios.delete(`/article?articleId=${articleId}`)
+      if(res.data.success){
+        list.splice(index, 1)
+      }
     }
   },
   computed: {
