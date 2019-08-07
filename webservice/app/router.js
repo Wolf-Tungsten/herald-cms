@@ -29,6 +29,10 @@ module.exports = app => {
   router.post('/api/v1/article/create', controller.article.create)
   router.post('/api/v1/article/save', controller.article.save)
   router.get('/api/v1/article', controller.article.get)
+  router.get('/api/v1/article/list/own', controller.article.findArticleOfOwn)
+  router.get('/api/v1/article/list/reviewing', controller.article.findArticleNeedReviewing)
+  router.get('/api/v1/article/list/column', controller.article.findArticleOfColumn)
+  router.delete('/api/v1/article', controller.article.delete)
 
   // 静态文件上传
   router.post('/api/v1/upload/cover-img', controller.upload.uploadCoverImage)

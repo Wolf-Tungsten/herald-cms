@@ -44,6 +44,32 @@ class ArticleService extends Service {
 
     return wellPrepared
   }
+
+  async delete(articleId){
+    let permission = await this.ctx.service.permission.checkArticlePermission(articleId)
+    let userId = await this.ctx.getUserId()
+    if(!articleId){
+      throw '未指定文章ID'
+    }
+    let article = await this.ctx.model.Article.findById(articleId)
+    // 权限检查
+    if(permission === 'none'){
+      throw '无权操作'
+    } else if (permission === 'edit') {
+      if(article.authorId !== userId){
+        throw '无权操作'
+      }
+    }
+    // 获取关联文件列表并删除
+    let fileList = await this.ctx.model.Resource.find({articleId})
+    fileList.forEach(f => {
+      this.ctx.model.Resource.deleteOne({_id:f._id})
+      this.ctx.service.upload.deleteFile(f.resourceName)
+    })
+    // 删除文章
+    await this.ctx.model.Article.deleteOne({_id:article._id})
+    return '删除成功'
+  }
 }
 
 module.exports = ArticleService;
