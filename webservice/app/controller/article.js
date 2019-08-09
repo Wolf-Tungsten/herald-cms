@@ -108,11 +108,12 @@ class ArticleController extends Controller {
     }
     let article = await this.ctx.model.Article.findById(articleId)
     let userId = await this.ctx.getUserId()
+    console.log(permission, article.status, userId, article.authorId)
     if (permission === 'edit') {
       // 如果对于当前文章有编辑权限
       if (article.status === 'draft') {
         // 且当前文章处于草稿状态
-        if (userId === article.authorId) {
+        if (''+userId === article.authorId) {
           // 只允许本人操作
           article.status = 'reviewing'
           await article.save()
@@ -124,6 +125,7 @@ class ArticleController extends Controller {
       if (!publishTime) {
         publishTime = this.ctx.helper.now()
       }
+      publishTime = +publishTime
       article.status = 'published'
       article.publishTime = publishTime
       await article.save()
@@ -149,6 +151,12 @@ class ArticleController extends Controller {
         await article.save()
         return '已拒稿'
       }
+    } else if (permission === 'edit'){
+      if (article.status === 'reviewing' && article.authorId === (await this.ctx.getUserId())) {
+        article.status = 'draft'
+        await article.save()
+        return '已撤销审核申请'
+      }
     }
     throw '操作不允许'
   }
@@ -161,46 +169,68 @@ class ArticleController extends Controller {
   async findArticleOfColumn() {
     let { columnId, pagesize = 10, page = 1, status, title } = await this.ctx.request.query
     let permission = await this.ctx.service.permission.checkPermission(columnId)
-    if (permission !== 'publish') {
-      throw '无权查看'
+    if (permission === 'publish') {
+      page = +page
+      pagesize = +pagesize
+      let articleList = (await this.ctx.model.Article.find((title ? { columnId, title: { $regex: `.*(${title}).*` } } : { columnId }),
+        ['_id', 'title', 'authorName', 'status', 'publishTime', 'code'],
+        {
+          skip: pagesize * (page - 1),
+          limit: pagesize,
+          sort: { lastModifiedTime: -1 }
+        })).map(a => ({
+          id: a._id,
+          title: a.title ? a.title : '无标题文章',
+          authorName: a.authorName ? a.authorName : '未署名',
+          status: a.status,
+          publishTime: a.publishTime,
+          code:a.code
+        }))
+      let articleCount = await this.ctx.model.Article.countDocuments({ columnId })
+      return { articleList, articleAmount: articleCount }
+    } else if (permission === 'edit') {
+      page = +page
+      pagesize = +pagesize
+      let articleList = (await this.ctx.model.Article.find((title ? { columnId, title: { $regex: `.*(${title}).*` }, authorId:(await this.ctx.getUserId()) } : { columnId, authorId:(await this.ctx.getUserId()) }),
+        ['_id', 'title', 'authorName', 'status', 'publishTime', 'code'],
+        {
+          skip: pagesize * (page - 1),
+          limit: pagesize,
+          sort: { lastModifiedTime: -1 }
+        })).map(a => ({
+          id: a._id,
+          title: a.title ? a.title : '无标题文章',
+          authorName: a.authorName ? a.authorName : '未署名',
+          status: a.status,
+          publishTime: a.publishTime,
+          code:a.code
+        }))
+      let articleCount = await this.ctx.model.Article.countDocuments({ columnId })
+      return { articleList, articleAmount: articleCount }
     }
-    page = +page
-    pagesize = +pagesize
-    let articleList = (await this.ctx.model.Article.find((title ? {columnId, title:{$regex:`.*(${title}).*`}} : { columnId }), 
-      ['_id', 'title', 'authorName', 'status', 'publishTime'],
-      {skip:pagesize*(page-1), 
-        limit:pagesize, 
-        sort:{lastModifiedTime:-1}
-      })).map(a => ({ id: a._id, 
-        title: a.title ? a.title : '无标题文章', 
-        authorName: a.authorName ? a.authorName : '未署名',
-        status:a.status,
-        publishTime:a.publishTime
-       }))
-    let articleCount = await this.ctx.model.Article.countDocuments({ columnId })
-    return {articleList, articleAmount:articleCount}
+
   }
 
   async findArticleOfOwn() {
     // 查找自己创建的草稿、等待审核、审核被拒的文章
     let userId = await this.ctx.getUserId()
     let res = {
-      draft: (await this.ctx.model.Article.find({ authorId: userId, status: 'draft' }, ['_id', 'title', 'lastModifiedTime', 'columnId'],{sort:{lastModifiedTime:-1}})).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime:a.lastModifiedTime, columnId:a.columnId })),
-      reviewing: (await this.ctx.model.Article.find({ authorId: userId, status: 'reviewing' }, ['_id', 'title', 'lastModifiedTime', 'columnId'],{sort:{lastModifiedTime:-1}})).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime:a.lastModifiedTime, columnId:a.columnId })),
-      rejected: (await this.ctx.model.Article.find({ authorId: userId, status: 'rejected' }, ['_id', 'title', 'lastModifiedTime', 'columnId'],{sort:{lastModifiedTime:-1}})).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime:a.lastModifiedTime, columnId:a.columnId })),
+      draft: (await this.ctx.model.Article.find({ authorId: userId, status: 'draft' }, ['_id', 'title', 'lastModifiedTime', 'columnId'], { sort: { lastModifiedTime: -1 } })).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime: a.lastModifiedTime, columnId: a.columnId })),
+      reviewing: (await this.ctx.model.Article.find({ authorId: userId, status: 'reviewing' }, ['_id', 'title', 'lastModifiedTime', 'columnId'], { sort: { lastModifiedTime: -1 } })).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime: a.lastModifiedTime, columnId: a.columnId })),
+      rejected: (await this.ctx.model.Article.find({ authorId: userId, status: 'rejected' }, ['_id', 'title', 'lastModifiedTime', 'columnId'], { sort: { lastModifiedTime: -1 } })).map(a => ({ id: a._id, title: a.title ? a.title : '无标题文章', lastModifiedTime: a.lastModifiedTime, columnId: a.columnId })),
     }
     res.draft = await Promise.all(res.draft.map(async article => {
-      let column = await this.ctx.model.Column.findOne({_id:article.columnId},['name'])
+      let column = await this.ctx.model.Column.findOne({ _id: article.columnId }, ['name'])
       article.columnName = column.name
       return article
     }))
     res.reviewing = await Promise.all(res.reviewing.map(async article => {
-      let column = await this.ctx.model.Column.findOne({_id:article.columnId},['name'])
+      let column = await this.ctx.model.Column.findOne({ _id: article.columnId }, ['name'])
       article.columnName = column.name
       return article
     }))
     res.rejected = await Promise.all(res.rejected.map(async article => {
-      let column = await this.ctx.model.Column.findOne({_id:article.columnId},['name'])
+      let column = await this.ctx.model.Column.findOne({ _id: article.columnId }, ['name'])
       article.columnName = column.name
       return article
     }))

@@ -2,6 +2,11 @@
   <el-container style="height:100%;" v-loading="loading">
     <el-main style="padding-right:40px;">
       <el-form ref="titleForm" :model="titleForm" label-width="80px">
+        <el-form-item label="文章代码">
+          <div
+            style="background:rgb(250, 236, 216);font-size:20px;border-radius:8px;padding:0px;width:120px;color:#333;font-weight:bolder;"
+          >{{code}}</div>
+        </el-form-item>
         <el-form-item label="文章标题">
           <el-input v-model="titleForm.title"></el-input>
         </el-form-item>
@@ -12,7 +17,7 @@
             <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
           </div>
         </el-form-item>
-        <el-form-item label="视频/附件" >
+        <el-form-item label="视频/附件">
           <el-col :span="9">
             <div style="text-align:left;">
               <el-upload
@@ -57,7 +62,7 @@
         </el-form-item>
         <el-form-item label="定时发布" v-if="permission === 'publish'">
           <div style="text-align:left;">
-          <el-switch v-model="isScheduledPublish"></el-switch>
+            <el-switch v-model="isScheduledPublish"></el-switch>
           </div>
         </el-form-item>
         <el-form-item label="发布时间" v-if="isScheduledPublish">
@@ -74,13 +79,25 @@
       <div style="margin-top:20px;">
         <el-button type="default" @click="save">保存</el-button>
         <el-button type="primary" v-if="permission == 'publish'" @click="saveAndPublish">保存并发布</el-button>
-        <el-button type="primary" v-if="permission == 'edit'">保存并提交审核</el-button>
-        <el-button type="warning" v-if="permission == 'publish' && status === 'reviewing'">驳回审核请求</el-button>
-        <el-button type="danger">删除文章</el-button>
+        <el-button type="primary" v-if="permission == 'edit' && status === 'draft'" @click="saveAndPublish">保存并提交审核</el-button>
+        <el-button
+          type="warning"
+          v-if="permission == 'publish' && status === 'reviewing'"
+          @click="saveAndReject"
+        >驳回审核请求</el-button>
+        <el-button
+          type="warning"
+          v-if="permission == 'edit' && status === 'reviewing'"
+          @click="saveAndReject"
+        >撤销审核申请</el-button>
+        <el-button type="danger" @click="deleteArticle">删除文章</el-button>
+        <el-button type="default" @click="navigateBack">返回</el-button>
       </div>
     </el-main>
     <el-aside class="aside">
-      <div style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px;">
+      <div
+        style="font-size:20px;background:#F6F6F6;padding:10px 0; margin-bottom:10px; margin-top:20px"
+      >
         <span class="el-icon-s-order" style="margin-right:10px;"></span>文章元数据
       </div>
       <el-form ref="metaForm" :model="metaForm" label-width="80px">
@@ -158,7 +175,7 @@ import ImageCaption from "@ckeditor/ckeditor5-image/src/imagecaption";
 import ImageStyle from "@ckeditor/ckeditor5-image/src/imagestyle";
 import ImageUpload from "@ckeditor/ckeditor5-image/src/imageupload";
 import ImageUploadAdapterPlugin from "../editor/uploadAdapter";
-import moment from 'moment'
+import moment from "moment";
 export default {
   name: "editor",
   components: {},
@@ -173,8 +190,9 @@ export default {
       appendFileList: [],
       loading: false,
       articleId: "",
-      permission:'none',
-      status:'draft',
+      permission: "none",
+      status: "draft",
+      code: "XXXXXXX",
       titleForm: {
         title: ""
       },
@@ -185,7 +203,7 @@ export default {
         refLink: ""
       }, //文章元数据
       isScheduledPublish: false,
-      publishDate: '',
+      publishDate: "",
       editor: ClassicEditor,
       editorData: "",
       editorConfig: {
@@ -277,6 +295,56 @@ export default {
     }
   },
   methods: {
+    async loadArticle() {
+      this.articleId = this.$route.params.articleId;
+      if (!this.$route.params.articleId) {
+        // 如果文章ID未指定，跳转回文章管理页
+        this.$router.replace({ name: "article" });
+      }
+      let permissionCheckRes = await this.$axios.get(
+        `/permission/article?articleId=${this.articleId}`
+      );
+      if (
+        permissionCheckRes.data &&
+        permissionCheckRes.data.success &&
+        permissionCheckRes.data.result !== "none"
+      ) {
+        this.permission = permissionCheckRes.data.result;
+      } else {
+        // 无权编辑，跳转回文章管理页
+        this.$router.replace({ name: "article" });
+      }
+
+      this.$store.commit("setCurrentArticleId", this.articleId);
+      // 权限检查完毕，开始获取文章内容
+      let res = await this.$axios.get(`/article?articleId=${this.articleId}`);
+      if (!res.data.success) {
+        //this.$message.error(res.data.reason)
+        this.$router.replace({ name: "article" });
+      }
+      let article = res.data.result;
+      this.status = article.status;
+      this.code = article.code;
+      this.titleForm.title = article.title;
+      this.metaForm.authorName = article.authorName;
+      this.metaForm.abstract = article.abstract;
+      this.metaForm.isRefLink = !!article.refLink;
+      this.metaForm.refLink = article.refLink;
+      this.editorData = article.content;
+      this.videoFileList = article.videoList.map(v => {
+        return {
+          ...v,
+          response: { result: { fileId: v.fileId } }
+        };
+      });
+      this.appendFileList = article.appendFileList.map(f => {
+        return {
+          ...f,
+          response: { result: { fileId: f.fileId } }
+        };
+      });
+      this.coverUrl = article.coverUrl;
+    },
     getContent() {
       console.log(this.editorData);
     },
@@ -343,71 +411,67 @@ export default {
         `/upload/delete-file?fileId=${file.response.result.fileId}`
       );
     },
-    async save(){
-      let articleId = this.articleId
-      let title = this.titleForm.title
-      let authorName = this.metaForm.authorName
-      let abstract = this.metaForm.abstract
-      let refLink = this.metaForm.refLink
-      let content = this.editorData
-      let res = await this.$axios.post('/article/save', {articleId, title, authorName, abstract, refLink, content})
-      if(res.data.success){
+    async save() {
+      let articleId = this.articleId;
+      let title = this.titleForm.title;
+      let authorName = this.metaForm.authorName;
+      let abstract = this.metaForm.abstract;
+      let refLink = this.metaForm.refLink;
+      let content = this.editorData;
+      let res = await this.$axios.post("/article/save", {
+        articleId,
+        title,
+        authorName,
+        abstract,
+        refLink,
+        content
+      });
+      if (res.data.success) {
         this.$message({
-          type:'success',
-          message:res.data.result
-        })
-      }else{
-        this.$message.error(res.data.reason)
+          type: "success",
+          message: res.data.result
+        });
+      } else {
+        this.$message.error(res.data.reason);
       }
     },
-    async saveAndPublish(){
-      let publishTime = moment(this.publishDate)
-      console.log(+publishTime)
+    async saveAndPublish() {
+      let publishTime = +moment();
+      if (this.publishDate) {
+        publishTime = +moment(this.publishDate);
+      }
+      await this.save();
+      let res = await this.$axios.post("/article/publish", {
+        articleId: this.articleId,
+        publishTime
+      });
+      this.loadArticle();
+    },
+    async saveAndReject() {
+      await this.save();
+      let res = await this.$axios.post("/article/cancel-publish", {
+        articleId: this.articleId
+      });
+      this.$router.go(-1);
+    },
+    async deleteArticle() {
+      let res = await this.$axios.delete(
+        `/article?articleId=${this.articleId}`
+      );
+      if (res.data.success) {
+        this.$message({
+          type: "success",
+          message: "文章删除成功"
+        });
+      }
+      this.loadArticle();
+    },
+    async navigateBack() {
+      this.$router.go(-1);
     }
   },
   async created() {
-    this.articleId = this.$route.params.articleId;
-    if (!this.$route.params.articleId) {
-      // 如果文章ID未指定，跳转回文章管理页
-      this.$router.replace({ name: "article" });
-    }
-    let permissionCheckRes = await this.$axios.get(
-      `/permission/article?articleId=${this.articleId}`
-    );
-    if (
-      permissionCheckRes.data &&
-      permissionCheckRes.data.success &&
-      permissionCheckRes.data.result !== "none"
-    ) {
-      this.permission = permissionCheckRes.data.result
-    } else {
-      // 无权编辑，跳转回文章管理页
-      this.$router.replace({ name: "article" });
-    }
-    this.$store.commit("setCurrentArticleId", this.articleId);
-    // 权限检查完毕，开始获取文章内容
-    let res = await this.$axios.get(`/article?articleId=${this.articleId}`)
-    let article = res.data.result
-    this.status = article.status
-    this.titleForm.title = article.title
-    this.metaForm.authorName = article.authorName
-    this.metaForm.abstract = article.abstract
-    this.metaForm.isRefLink = !!article.refLink
-    this.metaForm.refLink = article.refLink
-    this.editorData = article.content
-    this.videoFileList = article.videoList.map( v => {
-      return {
-        ...v,
-        response:{result:{fileId:v.fileId}}
-      }
-    })
-    this.appendFileList = article.appendFileList.map( f => {
-      return {
-        ...f,
-        response:{result:{fileId:f.fileId}}
-      }
-    })
-    this.coverUrl = article.coverUrl
+    this.loadArticle();
   }
 };
 </script>

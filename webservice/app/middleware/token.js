@@ -15,7 +15,7 @@ module.exports = option => {
             if(ctx.helper.now > result.tokenExpireTime){
                 throw 401
             }
-            return result._id
+            return ''+result._id
         }
         ctx.getUserInfo = async () => {
             if(token === ''){

@@ -19,15 +19,16 @@
           {{currentColumn.name}}
           <span class="explain-text">// 文章管理</span>
         </div>
-        <div class="explain-text">在此页面进行对当前选中栏目中的文章进行管理</div>
+        <div class="explain-text">在此页面进行对当前选中栏目中的文章进行管理，请选择右侧具体栏目进行操作</div>
 
         <!-- 权限不足提示 -->
         <div
           class="no-permission"
-          v-if="!hasEditPermission && !hasPublishPermission"
+          v-if="currentColumn.name !== '站点' && !hasEditPermission && !hasPublishPermission"
         >⛔️抱歉，您无权操作此栏目！如有疑问请与站点管理员联系。</div>
 
-        <div class="function-block" v-if="currentColumn.name !== '站点'">
+        <!-- 创建文章面板 -->
+        <div class="function-block" v-if="currentColumn.name !== '站点' && hasEditPermission">
           <div class="subtitle">创建文章</div>
           <div
             class="explain-text"
@@ -42,7 +43,35 @@
           </div>
         </div>
 
-        <div class="function-block" v-if="ownDraftList.length > 0">
+        <!-- 等待审核面板 -->
+        <div class="function-block" v-if="reviewingArticleList.length > 0 && hasPublishPermission">
+          <div class="subtitle">等待审核</div>
+          <div class="explain-text">此处显示等待您审核的文章，请尽快操作</div>
+          <div class="function-block-body">
+            <el-table :data="reviewingArticleList" max-height="300" stripe>
+              <el-table-column prop="title" label="文章标题"></el-table-column>
+              <el-table-column prop="lastModifiedTimeDisp" label="最新修改时间" width="150"></el-table-column>
+              <el-table-column prop="columnName" label="所在栏目" width="100"></el-table-column>
+              <el-table-column width="180">
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="editArticle(scope.$index, reviewingArticleList)"
+                    type="default"
+                    size="small"
+                  >前往审核</el-button>
+                  <el-button
+                    @click.native.prevent="deleteArticle(scope.$index, reviewingArticleList)"
+                    type="danger"
+                    size="small"
+                  >删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 我的草稿面板 -->
+        <div class="function-block" v-if="ownDraftList.length > 0 && (hasEditPermission || currentColumn.name === '站点')">
           <div class="subtitle">我的草稿</div>
           <div class="explain-text">此处显示您正在编辑中的文章</div>
           <div class="function-block-body">
@@ -68,7 +97,8 @@
           </div>
         </div>
 
-        <div class="function-block" v-if="ownReviewingList.length > 0">
+        <!-- 审核中面板 -->
+        <div class="function-block" v-if="ownReviewingList.length > 0 && (hasEditPermission || currentColumn.name === '站点')">
           <div class="subtitle">审核中的文章</div>
           <div class="explain-text">此处显示由您撰写且处于审核状态的文章，在审核通过之前您可以继续修改。</div>
           <div class="function-block-body">
@@ -82,7 +112,7 @@
                     @click.native.prevent="editArticle(scope.$index, ownReviewingList)"
                     type="default"
                     size="small"
-                  >前往审核</el-button>
+                  >前往修改</el-button>
                   <el-button
                     @click.native.prevent="deleteArticle(scope.$index, ownReviewingList)"
                     type="danger"
@@ -94,7 +124,8 @@
           </div>
         </div>
 
-        <div class="function-block" v-if="ownRejectedList.length > 0">
+        <!-- 被拒稿面板 -->
+        <div class="function-block" v-if="ownRejectedList.length > 0  && (hasEditPermission || currentColumn.name === '站点')">
           <div class="subtitle">被拒稿的文章</div>
           <div class="explain-text">此处显示由您撰写但被栏目管理员拒稿的文章，在再次提交审核前，请您修改。</div>
           <div class="function-block-body">
@@ -120,9 +151,13 @@
           </div>
         </div>
 
-        <div class="function-block" v-if="currentColumn.name!=='站点'">
+        <!-- 栏目文章面板 -->
+        <div
+          class="function-block"
+          v-if="currentColumn.name!=='站点' && (hasEditPermission || hasPublishPermission)"
+        >
           <div class="subtitle">栏目文章</div>
-          <div class="explain-text">此处显示栏目中的所有文章</div>
+          <div class="explain-text">此处显示栏目中的所有您可以访问/编辑的文章</div>
           <el-form style="margin-top:20px;">
             <el-form-item label>
               <el-col :span="10">
@@ -138,11 +173,12 @@
           </el-form>
           <div class="function-block-body">
             <el-table :data="fullArticleList" max-height="600" stripe>
+              <el-table-column prop="code" label="#" width="100"></el-table-column>
               <el-table-column prop="title" label="文章标题"></el-table-column>
               <el-table-column prop="authorName" label="作者署名" width="100"></el-table-column>
               <el-table-column prop="lastModifiedTimeDisp" label="最新修改时间" width="150"></el-table-column>
               <el-table-column prop="statusDisp" label="发布状态" width="100"></el-table-column>
-              <el-table-column width="180">
+              <el-table-column width="200">
                 <template slot-scope="scope">
                   <el-button
                     @click.native.prevent="editArticle(scope.$index, fullArticleList, scope)"
@@ -322,7 +358,7 @@ export default {
       let res = await this.$axios.delete(`/article?articleId=${articleId}`);
       if (res.data.success) {
         list.splice(index, 1);
-        this.loadFullArticleList()
+        this.loadFullArticleList();
       }
     },
     async handleArticleListSizeChange(val) {
@@ -362,8 +398,10 @@ export default {
     },
     async cancelPublish(index, list) {
       let articleId = list[index].id;
-      let res = await this.$axios.post(`/article/cancel-publish`, {articleId});
-      this.loadFullArticleList()
+      let res = await this.$axios.post(`/article/cancel-publish`, {
+        articleId
+      });
+      this.loadFullArticleList();
     }
   },
   watch: {},
