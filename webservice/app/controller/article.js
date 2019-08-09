@@ -159,12 +159,14 @@ class ArticleController extends Controller {
   }
 
   async findArticleOfColumn() {
-    let { columnId, pagesize = 10, page = 1, status } = await this.ctx.request.query
+    let { columnId, pagesize = 10, page = 1, status, title } = await this.ctx.request.query
     let permission = await this.ctx.service.permission.checkPermission(columnId)
     if (permission !== 'publish') {
       throw '无权查看'
     }
-    let articleList = (await this.ctx.model.Article.find({ columnId, status }, 
+    page = +page
+    pagesize = +pagesize
+    let articleList = (await this.ctx.model.Article.find((title ? {columnId, title:{$regex:`.*(${title}).*`}} : { columnId }), 
       ['_id', 'title', 'authorName', 'status', 'publishTime'],
       {skip:pagesize*(page-1), 
         limit:pagesize, 
@@ -176,7 +178,7 @@ class ArticleController extends Controller {
         publishTime:a.publishTime
        }))
     let articleCount = await this.ctx.model.Article.countDocuments({ columnId })
-    return {articleList, pageAmount:Math.ceil(articleCount/pagesize)}
+    return {articleList, articleAmount:articleCount}
   }
 
   async findArticleOfOwn() {

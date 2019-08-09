@@ -28,6 +28,8 @@ module.exports = app => {
   // 文章管理路由
   router.post('/api/v1/article/create', controller.article.create)
   router.post('/api/v1/article/save', controller.article.save)
+  router.post('/api/v1/article/publish', controller.article.publishOrReviewing)
+  router.post('/api/v1/article/cancel-publish', controller.article.rejectOrCancelPublish)
   router.get('/api/v1/article', controller.article.get)
   router.get('/api/v1/article/list/own', controller.article.findArticleOfOwn)
   router.get('/api/v1/article/list/reviewing', controller.article.findArticleNeedReviewing)

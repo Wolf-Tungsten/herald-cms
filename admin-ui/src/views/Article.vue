@@ -42,7 +42,6 @@
           </div>
         </div>
 
-
         <div class="function-block" v-if="ownDraftList.length > 0">
           <div class="subtitle">我的草稿</div>
           <div class="explain-text">此处显示您正在编辑中的文章</div>
@@ -83,7 +82,7 @@
                     @click.native.prevent="editArticle(scope.$index, ownReviewingList)"
                     type="default"
                     size="small"
-                  >继续编辑</el-button>
+                  >前往审核</el-button>
                   <el-button
                     @click.native.prevent="deleteArticle(scope.$index, ownReviewingList)"
                     type="danger"
@@ -120,13 +119,83 @@
             </el-table>
           </div>
         </div>
+
+        <div class="function-block" v-if="currentColumn.name!=='站点'">
+          <div class="subtitle">栏目文章</div>
+          <div class="explain-text">此处显示栏目中的所有文章</div>
+          <el-form style="margin-top:20px;">
+            <el-form-item label>
+              <el-col :span="10">
+                <el-input
+                  placeholder="按文章标题过滤"
+                  prefix-icon="el-icon-search"
+                  v-model="titleFilter"
+                  @change="handleTitleFilterChange"
+                  :clearable="true"
+                ></el-input>
+              </el-col>
+            </el-form-item>
+          </el-form>
+          <div class="function-block-body">
+            <el-table :data="fullArticleList" max-height="600" stripe>
+              <el-table-column prop="title" label="文章标题"></el-table-column>
+              <el-table-column prop="authorName" label="作者署名" width="100"></el-table-column>
+              <el-table-column prop="lastModifiedTimeDisp" label="最新修改时间" width="150"></el-table-column>
+              <el-table-column prop="statusDisp" label="发布状态" width="100"></el-table-column>
+              <el-table-column width="180">
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="editArticle(scope.$index, fullArticleList, scope)"
+                    type="default"
+                    size="small"
+                    v-if="scope.row.status === 'draft'"
+                  >前往编辑</el-button>
+                  <el-button
+                    @click.native.prevent="editArticle(scope.$index, fullArticleList)"
+                    type="default"
+                    size="small"
+                    v-if="scope.row.status === 'reviewing'"
+                  >前往审核</el-button>
+                  <el-button
+                    @click.native.prevent="cancelPublish(scope.$index, fullArticleList)"
+                    type="default"
+                    size="small"
+                    v-if="scope.row.status === 'published'"
+                  >取消发布</el-button>
+                  <el-button
+                    @click.native.prevent="editArticle(scope.$index, fullArticleList)"
+                    type="default"
+                    size="small"
+                    v-if="scope.row.status === 'rejected'"
+                  >重新编辑</el-button>
+                  <el-button
+                    @click.native.prevent="deleteArticle(scope.$index, fullArticleList)"
+                    type="danger"
+                    size="small"
+                  >删除文章</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination
+              @size-change="handleArticleListSizeChange"
+              @current-change="handleArticleListCurrentChange"
+              :current-page="this.page"
+              :page-sizes="[5, 10, 20, 50, 100]"
+              :page-size="this.pagesize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="this.articleAmount"
+              style="margin-top:20px;"
+            ></el-pagination>
+          </div>
+        </div>
       </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-import moment from 'moment';
+import moment from "moment";
+import { mkdir } from "fs";
 export default {
   name: "column",
   components: {},
@@ -146,9 +215,15 @@ export default {
       ownDraftList: [],
       ownReviewingList: [],
       ownRejectedList: [],
+      wholeOwnDraftList: [],
+      wholeOwnReviewingList: [],
+      wholeOwnRjectedList: [],
       reviewingArticleList: [],
       fullArticleList: [],
-      articlePageAmount: 0
+      articleAmount: 0,
+      page: 1,
+      pagesize: 10,
+      titleFilter: ""
     };
     //----
   },
@@ -171,42 +246,52 @@ export default {
         res = await this.$axios.get("/article/list/own");
         this.ownDraftList = res.data.result ? res.data.result.draft : [];
         this.ownDraftList = this.ownDraftList.map(article => {
-          article.lastModifiedTimeDisp = moment(article.lastModifiedTime).format('YYYY-MM-DD hh:mm:ss')
-          return article
-        })
+          article.lastModifiedTimeDisp = moment(
+            article.lastModifiedTime
+          ).format("YYYY-MM-DD HH:mm:ss");
+          return article;
+        });
         this.ownReviewingList = res.data.result
           ? res.data.result.reviewing
           : [];
         this.ownReviewingList = this.ownReviewingList.map(article => {
-          article.lastModifiedTimeDisp = moment(article.lastModifiedTime).format('YYYY-MM-DD hh:mm:ss')
-          return article
-        })
+          article.lastModifiedTimeDisp = moment(
+            article.lastModifiedTime
+          ).format("YYYY-MM-DD hh:mm:ss");
+          return article;
+        });
         this.ownRejectedList = res.data.result ? res.data.result.rejected : [];
         this.ownRejectedList = this.ownRejectedList.map(article => {
-          article.lastModifiedTimeDisp = moment(article.lastModifiedTime).format('YYYY-MM-DD hh:mm:ss')
-          return article
-        })
+          article.lastModifiedTimeDisp = moment(
+            article.lastModifiedTime
+          ).format("YYYY-MM-DD hh:mm:ss");
+          return article;
+        });
+        this.wholeOwnDraftList = this.ownDraftList;
+        this.wholeOwnReviewingList = this.ownReviewingList;
+        this.wholeOwnRejectedList = this.ownRejectedList;
         // 获取等待审核的文章
         res = await this.$axios.get(`/article/list/reviewing`);
         this.reviewingArticleList = res.data.result ? res.data.result : [];
       } else {
-        // 清空自己的
-        this.ownDraftList = [];
-        this.ownReviewingList = [];
-        this.ownRejectedList = [];
+        this.ownDraftList = this.wholeOwnDraftList.filter(
+          a => a.columnId === col._id
+        );
+        this.ownReviewingList = this.wholeOwnReviewingList.filter(
+          a => a.columnId === col._id
+        );
+        this.ownRejectedList = this.wholeOwnRejectedList.filter(
+          a => a.columnId === col._id
+        );
         // 获取当前栏目下等待审核的文章
         res = await this.$axios.get(
           `/article/list/reviewing?articleId=${col._id}`
         );
         this.reviewingArticleList = res.data.result ? res.data.result : [];
         // 获取栏目文章列表
-        res = await this.$axios.get(`/article/list/column?columnId=${col._id}`);
-        this.fullArticleList = res.data.result
-          ? res.data.result.articleList
-          : [];
-        this.articlePageAmount = res.data.result
-          ? res.data.result.pageAmount
-          : 0;
+        this.pagesize = 10;
+        this.page = 1;
+        this.loadFullArticleList();
       }
     },
     async loadPermissionList() {
@@ -214,7 +299,6 @@ export default {
       this.permissionList = res.data.result;
     },
     nodeClick(col) {
-
       this.loadCurrentColumn(col);
       this.currentColumn = col;
     },
@@ -230,17 +314,59 @@ export default {
       }
       this.creatingArticle = false;
     },
-    editArticle(index, list){
-      this.$router.push({path:`/editor/${list[index].id}`})
+    editArticle(index, list, scope) {
+      this.$router.push({ path: `/editor/${list[index].id}` });
     },
-    async deleteArticle(index, list){
-      let articleId = list[index].id
-      let res = await this.$axios.delete(`/article?articleId=${articleId}`)
-      if(res.data.success){
-        list.splice(index, 1)
+    async deleteArticle(index, list) {
+      let articleId = list[index].id;
+      let res = await this.$axios.delete(`/article?articleId=${articleId}`);
+      if (res.data.success) {
+        list.splice(index, 1);
+        this.loadFullArticleList()
       }
+    },
+    async handleArticleListSizeChange(val) {
+      this.pagesize = val;
+      loadFullArticleList();
+    },
+    async handleArticleListCurrentChange(val) {
+      this.page = val;
+      loadFullArticleList();
+    },
+    async handleTitleFilterChange() {
+      this.page = 1;
+      this.loadFullArticleList();
+    },
+    async loadFullArticleList() {
+      let res = await this.$axios.get(
+        `/article/list/column?columnId=${this.currentColumn._id}&page=${this.page}&pagesize=${this.pagesize}&title=${this.titleFilter}`
+      );
+      this.fullArticleList = res.data.result ? res.data.result.articleList : [];
+      this.articleAmount = res.data.result ? res.data.result.articleAmount : 0;
+      let statusDispMap = {
+        draft: "草稿",
+        reviewing: "等待审核",
+        rejected: "被拒稿",
+        published: "已发布"
+      };
+      this.fullArticleList = this.fullArticleList.map(a => {
+        a.statusDisp = statusDispMap[a.status];
+        a.lastModifiedTimeDisp = moment(a.lastModifiedTime).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
+        if (a.publishTime > +moment()) {
+          a.statusDisp = "定时发布中";
+        }
+        return a;
+      });
+    },
+    async cancelPublish(index, list) {
+      let articleId = list[index].id;
+      let res = await this.$axios.post(`/article/cancel-publish`, {articleId});
+      this.loadFullArticleList()
     }
   },
+  watch: {},
   computed: {
     hasPublishPermission() {
       let publish = this.permissionList.publish.map(c => c.id);
