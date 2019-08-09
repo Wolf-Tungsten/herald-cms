@@ -1,7 +1,10 @@
 <template>
   <div id="app">
     <div class="media-hint show-xxs-only">
-      <img src="./assets/herald-cms-logo-text.png" style="width:auto;height:80px;margin-top:80px;margin-bottom:40px;" />
+      <img
+        src="./assets/herald-cms-logo-text.png"
+        style="width:auto;height:80px;margin-top:80px;margin-bottom:40px;"
+      />
       <p>为了良好的使用体验，请保证浏览器窗口宽度大于600像素</p>
       <p style="font-size:20px;font-weight:bolder;">当前宽度：{{screenWidth}}px</p>
     </div>
@@ -26,11 +29,21 @@
               <el-breadcrumb-item>{{currentRouteName}}</el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <el-menu class="el-menu-demo" mode="horizontal" @select="handleSelect" default-active="article">
+          <el-menu
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            default-active="article"
+          >
             <el-menu-item index="article" :route="{name:'article'}">文章管理</el-menu-item>
             <el-menu-item index="column" :route="{name:'column'}">栏目设置</el-menu-item>
             <el-menu-item index="role" :route="{name:'role'}">人员管理</el-menu-item>
-            <el-menu-item index="personal" :route="{name:'personal'}">个人设置</el-menu-item>
+            <el-menu-item index="role" :route="{name:'role'}">接口管理</el-menu-item>
+            <el-submenu index="2">
+              <template slot="title">个人设置</template>
+              <el-menu-item index="2-1">修改密码</el-menu-item>
+              <el-menu-item index="2-2">退出登录</el-menu-item>
+            </el-submenu>
           </el-menu>
         </div>
       </el-header>
@@ -45,10 +58,10 @@ import "./assets/herald-cms-logo-text.png";
 import "./assets/herald-cms-logo.png";
 import "element-ui/lib/theme-chalk/display.css";
 export default {
-  data(){
+  data() {
     return {
-      screenWidth:window.document.documentElement.clientWidth
-    }
+      screenWidth: window.document.documentElement.clientWidth
+    };
   },
   created() {
     if (!this.isLogin) {
@@ -60,21 +73,21 @@ export default {
         "Access-Token"
       ] = this.$store.state.accessToken;
     }
-    window.onresize = ()=>{
-      this.screenWidth = window.document.documentElement.clientWidth
-    }
+    window.onresize = () => {
+      this.screenWidth = window.document.documentElement.clientWidth;
+    };
   },
   computed: {
     isLogin() {
       return this.$store.state.isLogin;
     },
-    currentRouteName(){
+    currentRouteName() {
       return this.$store.state.currentRouteName;
     }
   },
-  methods:{
-    handleSelect(name){
-      this.$router.replace({name})
+  methods: {
+    handleSelect(name) {
+      this.$router.replace({ name });
     }
   }
 };
