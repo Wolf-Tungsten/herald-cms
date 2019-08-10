@@ -28,6 +28,12 @@ window.$store = new Vuex.Store({
       state.accessToken = ''
       window.$router.replace({name:'login'})
     },
+    resetPassword(state){
+      state.isLogin = false,
+      Vue.prototype.$axios.defaults.headers.common['Access-Token'] = ''
+      state.accessToken = ''
+      window.$router.replace({name:'forget-password'})
+    },
     setCurrentRouteName(state, routeName){
       let { _, to } = routeName
       state.currentRouteName = to.meta.displayName

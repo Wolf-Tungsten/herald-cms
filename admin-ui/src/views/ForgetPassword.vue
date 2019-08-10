@@ -1,7 +1,7 @@
 <template>
   <div class="activate-view" v-loading="loading">
     <img src="../assets/herald-cms-logo.png" style="width:80px;height:80px;margin-bottom:10px;" />
-    <div style="margin-bottom:30px;font-size:20px;">找回密码</div>
+    <div style="margin-bottom:30px;font-size:20px;">找回/修改密码</div>
     <el-form ref="form" :model="form" label-width="auto">
       <el-form-item label="电子邮箱地址">
         <el-input v-model="form.email" placeholder="用户注册时登记的电子邮箱" :readonly="isCodeSent"></el-input>

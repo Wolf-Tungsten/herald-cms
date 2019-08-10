@@ -88,6 +88,7 @@ export default {
   methods: {
     handleSelect(name) {
       if(name === 'resetPassword'){
+        this.$store.commit('resetPassword')
         return
       } else if (name === 'logout'){
         this.$store.commit('logout')
