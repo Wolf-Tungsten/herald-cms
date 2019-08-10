@@ -38,11 +38,11 @@
             <el-menu-item index="article" :route="{name:'article'}">文章管理</el-menu-item>
             <el-menu-item index="column" :route="{name:'column'}">栏目设置</el-menu-item>
             <el-menu-item index="role" :route="{name:'role'}">人员管理</el-menu-item>
-            <el-menu-item index="role" :route="{name:'role'}">接口管理</el-menu-item>
-            <el-submenu index="2">
+            <el-menu-item index="interface" :route="{name:'role'}">接口设置</el-menu-item>
+            <el-submenu index="personal">
               <template slot="title">个人设置</template>
-              <el-menu-item index="2-1">修改密码</el-menu-item>
-              <el-menu-item index="2-2">退出登录</el-menu-item>
+              <el-menu-item index="resetPassword">修改密码</el-menu-item>
+              <el-menu-item index="logout">退出登录</el-menu-item>
             </el-submenu>
           </el-menu>
         </div>
@@ -87,6 +87,12 @@ export default {
   },
   methods: {
     handleSelect(name) {
+      if(name === 'resetPassword'){
+        return
+      } else if (name === 'logout'){
+        this.$store.commit('logout')
+        return
+      }
       this.$router.replace({ name });
     }
   }

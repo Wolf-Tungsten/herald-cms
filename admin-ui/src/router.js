@@ -7,6 +7,7 @@ import Activate from './views/Activate.vue'
 import Signup from './views/Signup.vue'
 import Article from './views/Article.vue'
 import Editor from './views/Editor.vue'
+import ForgetPassword from './views/ForgetPassword.vue'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ window.$router  = new Router({
       path: '/signup',
       name: 'signup',
       component: Signup
+    },
+    {
+      path: '/forget-password',
+      name: 'forget-password',
+      component: ForgetPassword
     },
     {
       path: '/editor/:articleId',
