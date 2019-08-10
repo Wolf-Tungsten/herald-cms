@@ -34,6 +34,10 @@ class ColumnController extends Controller {
   }
 
   async findChildColumns() {
+    let userInfo = await this.ctx.getUserInfo()
+    if(!(userInfo.isAdmin || userInfo.isAuthor)){
+      throw 401
+    }
     let { parentId } = this.ctx.request.query
     return this.ctx.service.column.findChildColumns(parentId)
   }

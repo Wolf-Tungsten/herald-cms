@@ -9,6 +9,7 @@ import Article from './views/Article.vue'
 import Editor from './views/Editor.vue'
 import ForgetPassword from './views/ForgetPassword.vue'
 import Role from './views/Role.vue'
+import ApiKey from './views/ApiKey.vue'
 
 Vue.use(Router)
 
@@ -26,6 +27,12 @@ window.$router  = new Router({
       name: 'role',
       component: Role,
       meta:{displayName:"人员管理"}
+    },
+    {
+      path: '/api-key',
+      name: 'api-key',
+      component: ApiKey,
+      meta:{displayName:"接口设置"}
     },
     {
       path: '/column',

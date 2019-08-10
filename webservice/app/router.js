@@ -47,5 +47,15 @@ module.exports = app => {
   router.post('/api/v1/upload/video', controller.upload.uploadVideo)
   router.post('/api/v1/upload/append', controller.upload.uploadAppendFile)
   router.delete('/api/v1/upload/delete-file', controller.upload.deleteFile)
+
+  // API-Key管理
+  router.get('/api/v1/api-key', controller.apiKey.getKeyList)
+  router.post('/api/v1/api-key/create', controller.apiKey.create)
+  router.delete('/api/v1/api-key/delete', controller.apiKey.delete)
+  router.post('/api/v1/api-key/enable', controller.apiKey.enable)
+  router.post('/api/v1/api-key/disable', controller.apiKey.disable)
+  
   router.get('/', controller.home.index);
+
+
 };

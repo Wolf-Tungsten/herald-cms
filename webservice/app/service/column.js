@@ -24,10 +24,7 @@ class ColumnService extends Service {
 
   // 以树结构形式查找指定栏目的所有子栏目（根节点为指定栏目）
   async findChildColumns(parentId){
-    let userInfo = await this.ctx.getUserInfo()
-    if(!(userInfo.isAdmin || userInfo.isAuthor)){
-      throw 401
-    }
+
     let root = await this.findColumnById(parentId)
     root = { _id:root._id, children:{}, name:root.name, childrenList:[], code:root.code }
     let bfsQueue = [root]
