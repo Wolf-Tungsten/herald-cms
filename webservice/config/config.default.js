@@ -56,6 +56,8 @@ module.exports = appInfo => {
     }
   };
   config.webPostLoginURL = configYaml.webPostLoginURL
+  config.adminEmail = configYaml.adminEmail
+  config.adminPhoneNumber = configYaml.adminPhoneNumber
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1563698732399_8150';
 

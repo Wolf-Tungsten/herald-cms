@@ -44,8 +44,10 @@ class AppBootHook {
         let initAdmin = new this.app.model.User({
           name:'admin',
           passwordHash,
-          email:'794216553@qq.com',
-          isAdmin:true
+          email:this.app.config.adminEmail,
+          phoneNumber:this.app.config.adminPhoneNumber,
+          isAdmin:true,
+          isActivated:true
         })
         await initAdmin.save()
         console.log('网站初始化完毕，初始登录用户名：admin，初始密码：admin')

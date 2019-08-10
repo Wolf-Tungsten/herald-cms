@@ -19,3 +19,18 @@ mail:
 # CORS 白名单
 domainWhiteList:
   - 'http://localhost:8080'
+
+# 静态文件管理
+# publicUrlPrefix 指定公开访问静态文件的URL，
+# 可以指定多个负载均衡URL或者通过此处指定CDN
+# 以 / 结尾
+publicUrlPrefix: 
+  - 'http://localhost:7001/public/'
+
+# localStaticPath 本地静态文件保存路径
+# 在负载均衡时可以使用NFS挂载到指定的静态资源服务器
+localStaticPath: '~/herald-cms/webservice/app/public/'
+
+# 初始管理员电子邮箱地址
+adminEmail: 'admin@herald-cms.com'
+adminPhoneNumber: '19012341234'

@@ -44,6 +44,8 @@ class PermissionController extends Controller {
     return res
   }
 
+
+
   async getUserPermission(){
     let { userId } = this.ctx.request.query
     let userInfo = await this.ctx.getUserInfo()
@@ -55,13 +57,56 @@ class PermissionController extends Controller {
     }
     return await this.ctx.service.permission.getPermissionList(userId)
   }
+
+  async getAdminList(){
+    let userInfo = await this.ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+        throw '无权操作'
+    }
+    let adminList = await this.ctx.model.User.find({isAdmin:true}, ['name','email','_id', 'phoneNumber'])
+    return adminList
+  }
   
   async setAdmin(){
-
+    let userInfo = await this.ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+        throw '无权操作'
+    }
+    let { userId } = this.ctx.request.body
+    if(!userId){
+      throw '未指定将要设置为管理员的用户'
+    }
+    let user = await this.ctx.model.User.findById(userId)
+    if(!user){
+      throw '用户不存在'
+    }
+    if(user.isAdmin){
+      throw '管理员设置重复'
+    }
+    user.isAdmin = true
+    await user.save()
+    return '管理员设置成功'
   }
 
   async cancelAdmin(){
-
+    let userInfo = await this.ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+        throw '无权操作'
+    }
+    let { userId } = this.ctx.request.query
+    if(userId == userInfo._id){
+      throw '不能取消自身管理员权限'
+    }
+    if(!userId){
+      throw '未指定将要取消管理员权限的用户'
+    }
+    let user = await this.ctx.model.User.findById(userId)
+    if(!user){
+      throw '用户不存在'
+    }
+    user.isAdmin = false
+    await user.save()
+    return '管理员取消成功'
   }
 
   async set() {

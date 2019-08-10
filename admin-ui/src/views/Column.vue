@@ -58,9 +58,9 @@
         </div>
 
         <!-- 栏目重命名 -->
-        <div class="subtitle">栏目重命名</div>
-        <div class="explain-text">修改当前栏目的标题名称</div>
-        <div style="display:flex;flex-direction:column;align-items:flex-start;margin-top:20px;">
+        <div class="subtitle" v-if="current.name !== '站点'">栏目重命名</div>
+        <div class="explain-text" v-if="current.name !== '站点'">修改当前栏目的标题名称</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;margin-top:20px;" v-if="current.name !== '站点'">
           <el-input style="width:360px;" v-model="renameColumnName" placeholder="修改栏目名称"></el-input>
           <el-button style="margin-top:15px;" type="primary" @click="renameColumn">重命名</el-button>
         </div>
@@ -180,8 +180,22 @@ export default {
     nodeClick(col) {
       this.loadCurrent(col._id);
     },
-    deleteColumn(index, list) {
-      console.log(index, list);
+    async deleteColumn(index, list) {
+      let columnId = list[index]._id
+      let res = await this.$axios.delete(`/column?columnId=${columnId}`)
+      if(res.data && res.data.success){
+        this.$message({
+          type:'success',
+          message:'栏目删除成功'
+        })
+        await this.getColumnTree();
+        await this.loadCurrent(this.currentOpId);
+      }else{
+        this.$message({
+          type:'error',
+          message:res.data.reason
+        })
+      }
     },
     async createColumn() {
       this.loading = true;
@@ -200,7 +214,22 @@ export default {
       await this.loadCurrent(this.currentOpId);
       this.loading = false;
     },
-    async renameColumn() {},
+    async renameColumn() {
+      let res = await this.$axios.post('/column/rename',{columnId:this.currentOpId, newName:this.renameColumnName})
+      if(res.data && res.data.success){
+        this.$message({
+          type:'success',
+          message:'栏目重命名成功'
+        })
+        await this.getColumnTree();
+        await this.loadCurrent(this.currentOpId);
+      }else{
+        this.$message({
+          type:'error',
+          message:res.data.reason
+        })
+      }
+    },
     async findUserForPermission() {
       // 通过邮件查找用户以便于添加授权
       let res = await this.$axios.get(

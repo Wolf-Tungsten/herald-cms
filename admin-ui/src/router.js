@@ -8,6 +8,7 @@ import Signup from './views/Signup.vue'
 import Article from './views/Article.vue'
 import Editor from './views/Editor.vue'
 import ForgetPassword from './views/ForgetPassword.vue'
+import Role from './views/Role.vue'
 
 Vue.use(Router)
 
@@ -19,6 +20,12 @@ window.$router  = new Router({
       path: '/activate',
       name: 'activate',
       component: Activate
+    },
+    {
+      path: '/role',
+      name: 'role',
+      component: Role,
+      meta:{displayName:"人员管理"}
     },
     {
       path: '/column',

@@ -68,6 +68,24 @@ class ColumnService extends Service {
       return [...(await this.findParentColumnChain(col._id)), col]
     }
   }
+
+  // 删除栏目
+  async deleteColumn(columnId){
+    let children = await this.ctx.model.Column.find({parentId:columnId},['_id'])
+    children.forEach((c) => {
+      // 递归的删除子栏目
+      this.deleteColumn(c._id)
+    })
+    // 删除所有授权
+    await this.ctx.model.Permission.deleteMany({columnId})
+    // 获取栏目下的所有文章，并删除
+    let articles = await this.ctx.model.Article.find({columnId}, ['_id'])
+    articles.forEach((a) => {
+      this.ctx.service.article.delete(a._id)
+    })
+    // 删除栏目记录本身
+    await this.ctx.model.Column.deleteOne({_id:columnId})
+  }
 }
 
 module.exports = ColumnService;

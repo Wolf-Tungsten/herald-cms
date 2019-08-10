@@ -12,9 +12,11 @@ window.$store = new Vuex.Store({
   plugins:[vuexLocal.plugin],
   state: {
     isLogin:false,
+    userInfo:{},
     accessToken:'',
     currentRouteName:'',
-    currentArticleId:''
+    currentArticleId:'',
+
   },
   mutations: {
     login(state, accessToken){
@@ -27,6 +29,9 @@ window.$store = new Vuex.Store({
       Vue.prototype.$axios.defaults.headers.common['Access-Token'] = ''
       state.accessToken = ''
       window.$router.replace({name:'login'})
+    },
+    userInfo(state, userInfo){
+      state.userInfo = userInfo
     },
     resetPassword(state){
       state.isLogin = false,

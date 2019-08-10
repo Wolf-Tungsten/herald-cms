@@ -35,10 +35,10 @@
             @select="handleSelect"
             default-active="article"
           >
-            <el-menu-item index="article" :route="{name:'article'}">文章管理</el-menu-item>
-            <el-menu-item index="column" :route="{name:'column'}">栏目设置</el-menu-item>
-            <el-menu-item index="role" :route="{name:'role'}">人员管理</el-menu-item>
-            <el-menu-item index="interface" :route="{name:'role'}">接口设置</el-menu-item>
+            <el-menu-item index="article" :route="{name:'article'}" v-if="isAdmin || isAuthor">文章管理</el-menu-item>
+            <el-menu-item index="column" :route="{name:'column'}" v-if="isAdmin">栏目设置</el-menu-item>
+            <el-menu-item index="role" :route="{name:'role'}" v-if="isAdmin">人员管理</el-menu-item>
+            <el-menu-item index="interface" :route="{name:'role'}" v-if="isAdmin">接口设置</el-menu-item>
             <el-submenu index="personal">
               <template slot="title">个人设置</template>
               <el-menu-item index="resetPassword">修改密码</el-menu-item>
@@ -83,7 +83,13 @@ export default {
     },
     currentRouteName() {
       return this.$store.state.currentRouteName;
-    }
+    },
+    isAdmin(){
+      return this.$store.state.userInfo.isAdmin
+    },
+    isAuthor(){
+      return this.$store.state.userInfo.isAuthor
+    },
   },
   methods: {
     handleSelect(name) {

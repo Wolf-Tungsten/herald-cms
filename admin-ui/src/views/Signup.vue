@@ -67,9 +67,10 @@ export default {
           message: "注册完成，请继续完成激活",
           type: "success",
           onClose(){
-            that.$router.replace({name:'activate'})
+            
           }
         });
+        that.$router.replace({name:'activate'})
       } else {
         if (res.data.reason === "用户名已占用，请更换") {
           this.usernameError = res.data.reason;

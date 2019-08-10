@@ -66,9 +66,10 @@ export default {
           message: "验证通过，请继续登录",
           type: "success",
           onClose(){
-            that.$router.replace({name:'login'})
+            
           }
         });
+        that.$router.replace({name:'login'})
       } else {
         this.isCodeSent = false
         this.$message.error({

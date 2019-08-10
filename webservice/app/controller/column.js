@@ -38,6 +38,34 @@ class ColumnController extends Controller {
     return this.ctx.service.column.findChildColumns(parentId)
   }
 
+  async delete(){
+    let {columnId} = this.ctx.request.query
+    let userInfo = await this.ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+      throw '无权操作'
+    }
+    if(!columnId){
+      throw '未指定栏目ID'
+    }
+    await this.ctx.service.column.deleteColumn(columnId)
+    return '栏目删除成功'
+  }
+
+  async renameColumn(){
+    let {columnId, newName} = this.ctx.request.body
+    let userInfo = await this.ctx.getUserInfo()
+    if(!userInfo.isAdmin){
+      throw '无权操作'
+    }
+    let column = await this.ctx.model.Column.findById(columnId)
+    if(column.level === 0){
+      throw '站点根栏目不可重命名'
+    }
+    column.name = newName
+    await column.save()
+    return '栏目重命名成功'
+  }
+
 }
 
 module.exports = ColumnController;
