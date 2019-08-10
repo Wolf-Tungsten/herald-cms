@@ -48,7 +48,7 @@ class ArticleController extends Controller {
   }
 
   async save() {
-    let { articleId, title, authorName, abstract, refLink, content } = this.ctx.request.body
+    let { articleId, title, authorName, abstract, refLink, content, limited } = this.ctx.request.body
     if (!articleId) {
       throw '未指定文章ID'
     }
@@ -69,7 +69,8 @@ class ArticleController extends Controller {
     article.authorName = authorName
     article.abstract = abstract
     article.refLink = refLink
-
+    article.limited = limited
+    
     // 替换静态文件前缀
     const publicUrlPrefixPlaceholder = '{%-ZZJ-SO-CUTE-%}'
     this.app.config.static.publicUrlPrefix.forEach(p => {

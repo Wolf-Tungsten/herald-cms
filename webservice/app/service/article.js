@@ -11,7 +11,8 @@ class ArticleService extends Service {
       publishTime:article.publishTime,
       topFixed:article.topFixed,
       status:article.status,
-      code:article.code
+      code:article.code,
+      limited:article.limited
     }
 
     // 将article中的静态资源前缀替换
