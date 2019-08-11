@@ -63,6 +63,8 @@ module.exports = app => {
   router.get('/public-api/v1/function-token', controller.public.accessToken.functionAccess)
 
   router.get('/public-api/v1/column', controller.public.column.getColumnTree)
+
+  router.get('/public-api/v1/article-list', controller.public.article.getArticleList)
   router.get('/', controller.home.index);
 
 

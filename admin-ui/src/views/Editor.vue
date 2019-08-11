@@ -120,6 +120,9 @@
         <el-form-item label="权限文章" style="text-align:left">
           <el-switch v-model="metaForm.limited"></el-switch>
         </el-form-item>
+        <el-form-item label="文章置顶" style="text-align:left">
+          <el-switch v-model="metaForm.topFixed"></el-switch>
+        </el-form-item>
         <el-form-item label="封面图片">
           <img v-if="coverUrl" :src="coverUrl" style="width:100%; height:auto; border-radius:4px;" />
           <el-button v-if="coverUrl" @click="resetCover">重新选择封面</el-button>
@@ -204,7 +207,8 @@ export default {
         abstract: "",
         isRefLink: false,
         refLink: "",
-        limited: false
+        limited: false,
+        topFixed: false
       }, //文章元数据
       isScheduledPublish: false,
       publishDate: "",
@@ -335,6 +339,7 @@ export default {
       this.metaForm.isRefLink = !!article.refLink;
       this.metaForm.refLink = article.refLink;
       this.metaForm.limited = article.limited;
+      this.metaForm.topFixed = article.topFixed;
       this.editorData = article.content;
       this.videoFileList = article.videoList.map(v => {
         return {
@@ -423,6 +428,7 @@ export default {
       let abstract = this.metaForm.abstract;
       let refLink = this.metaForm.refLink;
       let limited = this.metaForm.limited;
+      let topFixed = this.metaForm.topFixed;
       let content = this.editorData;
       let res = await this.$axios.post("/article/save", {
         articleId,
@@ -431,7 +437,8 @@ export default {
         abstract,
         refLink,
         content,
-        limited
+        limited,
+        topFixed
       });
       if (res.data.success) {
         this.$message({
