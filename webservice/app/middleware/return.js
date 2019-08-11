@@ -17,9 +17,15 @@ module.exports = option => {
                 ctx.logger.error(e)
                 ctx.status = 400
             } else {
-                console.trace(e)
-                ctx.logger.error(e)
-                ctx.status = 400
+                if(e.reason && e.errCode){
+                    ctx._status = e.errCode
+                    body = e.reason 
+                    ctx.status = 400
+                } else {
+                    console.trace(e)
+                    ctx.logger.error(e)
+                    ctx.status = 400
+                }
             }
         }
 
@@ -33,10 +39,11 @@ module.exports = option => {
         } else {
             json = {
                 success: false,
-                code: ctx.status || 200,
+                code: ctx._status || ctx.status || 200,
                 reason: body,
                 related: ctx._related
             }
+
             if (!body) {
                 if (ctx.status === 400) {
                     json.reason = '请求出错'

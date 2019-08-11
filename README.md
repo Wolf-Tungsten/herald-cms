@@ -22,110 +22,164 @@ API 接口从功能上可以分类为面向前端站的接口和面向管理后�
 
 ### admin-ui
 
-Herald-CMS 接口完全开放，实际上用户可以自行实现管理后台，但考虑到这是一个较为复杂的过程，所以提供一个管理后台。
+Herald-CMS 接口完全开放，实际上用户可以自行实现管理后台，但考虑到这是一个较为复杂(甚至令人生厌)的过程，所以提供一个管理后台。
 
-## 功能&接口&开发需求
+# Herald-CMS Webservice 使用文档
 
-### 身份认证-auth
+Webservice 接口可以分为公开和私有两部分，公开部分面向用户前端站使用，私有部分面向 admin-ui 后台使用。
 
-**数据模型**
+考虑到私有部分对于绝大数用户来说参考的意义较弱，文档以代码注释形式出现，不单独成文；公有接口此处提供详细的使用文档。
 
-```javascript
+## 接口请求格式
+
+Webservice 使用 3 个 HTTP 动词：GET/POST/DELETE。
+
+**GET** 和 **DELETE** 请求参数通过Query Params给出。
+
+**POST** 请求忽略 URL 参数，全部从请求Body中读取，接受 json 和 x-www-form-urlencoded 两种格式，建议使用json格式。
+
+## 接口响应格式
+
+成功响应：
+
+```json
 {
-    name: { type: String },
-    passwordHash: { type: String },
-    attemptCount: {type:Number, default:0}, // 出现错误登录验证的计数
-    captchaCode: {type:String, default:''},
-    tokenHash: {type: String, default:''},
-    tokenExpireTime: {type: Number, default:0},
-    smsCode: {type: String, default:''},
-    smsCodeExpireTime: {type: Number, default:0},
-    phoneNumber: { type:String, default:'' },
-    email: {type:String, default:''},
-    emailCode: {type:String, default:''},
-    emailCodeExpireTime:{type:Number, default:0},
-    extraInfoJson: {type:Map, default:{}},
-    isAdmin: {type:Boolean, default:false},
-    isAuthor: {type:Boolean, default:false},
-    isActivated: {type:Boolean, default:false}
+    "success":true,
+    "code":200,
+    "result":<接口的返回结果>
 }
 ```
 
-**接口列表**
+失败响应：
 
-| 接口功能 | 接口url | 请求方式 | 请求参数  | 响应参数  | 备注 |
-| :-: | --- | --- | --- | --- | --- |
-| 用户登录 | /api/v1/login | POST | { <br> username,<br>password ,<br>captchaCode<br>} | {<br>needCaptcha:false,<br>isAdmin:user.isAdmin,<br>isAuthor:user.isAuthor,<br>postLoginUrl:webPostLoginURL,<br>token<br>} | 仅列出了成功的相应参数，登陆失败的响应见后端代码 |
-| 用户注册   | /api/v1/signup | POST | {<br />username,
-password, 
-email, phoneNumber, 
-passwordConfirm
-} | 返回各种验证失败的错误                           ||
-| 请求邮箱验证 | /api/v1/request-verify | POST                                                                             | {<br/>email
-} | 发送验证邮件                                     ||
-| 激活用户   | /api/v1/activate | POST                                                            | { <br/>email, 
-emailCode
-} | 激活账号                                         ||
-| 密码重置 | /api/v1/reset-password | POST                                           | { <br/>email, 
-emailCode, 
-newPassword 
-} | 返回重置结果 ||
-
-### 栏目管理 - Column
-
-**数据模型**
-
-```javascript
+```json
 {
-    _id: { type: ObjectId },
-    code: { type: String }, // 便捷栏目代码，随机数字字母组合，便于前端站开发使用
-    name: { type: String }, // 栏目名称（标题）
-    level: { type:Number }, // 栏目的级别，下文详细解释
-    parentId: {type:String, default:''} // 父栏目Id
+    "success":true,
+    "code":<错误代码>,
+    "reason":<错误的文字解释>
 }
 ```
 
-**栏目的级别**
-
-Herald-CMS 中栏目采用树状结构组织，有且仅有唯一的根栏目「站点」，根栏目 level 为 0 级，由系统自动维护。所有用户创建栏目均需指定父栏目，子栏目 level 较父栏目 level 增加 1。
+## 开放接口部分
 
 
 
-**接口列表**
+### 申请 Article-Token
 
-| 接口url                 | 请求方式 | 请求参数                 | 响应参数               | 备注                     |
-| :---------------------- | -------- | ------------------------ | ---------------------- | ------------------------ |
-| /api/v1/column          | GET      |                          | 以树状格式返回栏目结构 | column文档格式见数据模型 |
-| /api/v1/column/create   | POST     | {<br>name, parentId<br>} |                        |                          |
-| /api/v1/column/children | GET      | {<br>_id<br>}            | {column子栏目文档}     | column文档格式见数据模型 |
+Article-Token 用于将 Herald-CMS 与用户的身份认证系统实现对接；是用户访问带权限文章的身份依据；也是 Herald-CMS 统计接口的直接数据来源。
 
-### 权限管理 - Permission
+**有效性**：Article-Token 申请后须在 5 分钟内使用，使用一次后失效，如过期可重新申请。
 
-**数据类型**
+Article-Token 的使用方法可按照用户系统设计和应用场景设计。可以在用户业务服务器申请后访问 Herald-CMS 获取文章内容，也可由客户端从业务服务器获取然后由客户端直接访问 Herald-CMS
 
-```javascript
-{
-    userId: { type: String },
-    columnId: { type: String },
-    level: { type: String },
-}
+接口请求所需的 AppID 和 AppSecret 需从 Herald-CMS 接口设置页面添加。
+
+为了安全起见，AppID 和 AppSecret 的设计初衷是由用户业务服务器管理，不应发送到客户端，所以申请 token 的请求应在业务服务器完成。
+
+**接口URL**：/public-api/v1/article-token
+
+**请求方法**：GET
+
+| 参数名称        | 参数解释                                                     | 参数示例                                  |
+| --------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| appId           | 从管理后台「接口设置」页面申请的 AppID                       | faba8f80-7015-44c9-a824-88bcdcbf0b8d      |
+| articleCode     | 请求访问的文章代码                                           | 05CAA2AE                                  |
+| signature       | 请求参数签名，见签名计算方法部分                             | 00944618919455adf……67ebdf99af9409fb4b161d |
+| userIdentifier1 | （可选）用户身份标识字段1，由用户根据系统设计和应用场景设定，为统计接口预留使 | 213162317                                 |
+| userIdentifier2 | （可选）用户身份标识字段2，由用户根据系统设计和应用场景设定，为统计接口预留使用 |                                           |
+| userIdentifier3 | （可选）用户身份标识字段3，由用户根据系统设计和应用场景设定，为统计接口预留使用 |                                           |
+
+**签名计算方法**
+
+1.以query字符串方式组织字段，须保证顺序一致。可选参数若为空，也应出现字段名但内容为空
+
+```js
+let signatureSrc = `appId=${appId}&articleCode=${articleCode}&appSecret=${appSecret}&userIdentifier1=${userIdentifier1}&userIdentifier2=${userIdentifier2}&userIdentifier3=${userIdentifier3}`
 ```
 
-**接口列表**
+例如：
 
-| 接口url                      | 请求方式 | 请求参数                        | 响应参数                                                                                                                                               | 备注                                 |
-| ---------------------------- | -------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| /api/v1/permission/column    | GET      | { columnId }                    | {<br> name:user.name,<br>email:user.email,<br>phoneNumber:user.phoneNumber,<br>userId:c.userId,<br>level:c.level === 'publish'? '发布权限':'编辑权限'} |                                      |
-| /api/v1/permission/user-info | GET      | { <br>email <br>}               | {<br>name:user.name,<br>id:user._id,<br>email:user.email,<br>phoneNumber:user.phoneNumber<br>}                                                         |                                      |
-| /api/v1/permission/column    | POST     | { <br>level, userId, columnId } |                                                                                                                                                        | 使用getUserInfo()判断用户是否为admin |
-| /api/v1/permission/column    | DELETE   | {<br>userId, columnId<br>}      |                                                                                                                                                        | 删除栏目                             |
+```javascript
+appId=faba8f80-7015-44c9-a824-88bcdcbf0b8d&articleCode=05CAA2AE&appSecret=6a28b2ac-5153-46ae-a987-aa9117220b40-16d6aafd-c5e0-4f18-850c-b129de0f1472&userIdentifier1=213162317&userIdentifier2=&userIdentifier3=
+```
 
-**站点管理员角色**
+2.对 `signatureSrc` 进行 encodeURIComponent 编码
 
-通过用户数据的 isAdmin 字段标识
+```js
+signatureSrc = encodeURIComponent(signatureSrc)
+```
 
-站点管理员拥有对网站完全的控制。
+3.对 URI 编码后的`signatureSrc`计算 sha256 哈希值
 
-**编辑角色**
+```javascript
+let signature = sha256(signatureSrc) // 此处 sha256 方法需自行实现
+```
 
-编辑角色是相对栏目而言的。通过 Permission 表中的记录判别。
+**成功响应**：token字符串
+
+**失败响应**：
+
+| 错误代码 | 错误提示                    |
+| -------- | --------------------------- |
+| 10001    | appId不正确或已停用，请检查 |
+| 10002    | 签名验证错误                |
+| 10003    | 请求访问文章不存在          |
+
+
+
+### 申请 Function-Token
+
+Function-Token 作为业务服务器访问 Herald-CMS 功能接口的身份认证凭据
+
+**有效性**：Function-Token 有效期为 6 个小时，申请新的 Function-Token 会使旧的 Function-Token 失效。
+
+接口请求所需的 AppID 和 AppSecret 需从 Herald-CMS 接口设置页面添加。
+
+为了安全起见，AppID 和 AppSecret 的设计初衷是由用户业务服务器管理，不应发送到客户端，所以申请 token 的请求应在业务服务器完成。
+
+**接口URL**：/public-api/v1/function-token
+
+**请求方法**：GET
+
+| 参数名称  | 参数解释                               | 参数示例                                  |
+| --------- | -------------------------------------- | ----------------------------------------- |
+| appId     | 从管理后台「接口设置」页面申请的 AppID | faba8f80-7015-44c9-a824-88bcdcbf0b8d      |
+| signature | 请求参数签名，见签名计算方法部分       | 00944618919455adf……67ebdf99af9409fb4b161d |
+
+**签名计算方法**
+
+1.以query字符串方式组织字段，须保证顺序一致。可选参数若为空，也应出现字段名但内容为空
+
+```js
+let signatureSrc = `appId=${appId}&appSecret=${appSecret}`
+```
+
+例如：
+
+```javascript
+appId=faba8f80-7015-44c9-a824-88bcdcbf0b8d&appSecret=6a28b2ac-5153-46ae-a987-aa9117220b40-16d6aafd-c5e0-4f18-850c-b129de0f1472
+```
+
+2.对 `signatureSrc` 进行 encodeURIComponent 编码
+
+```js
+signatureSrc = encodeURIComponent(signatureSrc)
+```
+
+3.对 URI 编码后的`signatureSrc`计算 sha256 哈希值
+
+```javascript
+let signature = sha256(signatureSrc) // 此处 sha256 方法需自行实现
+```
+
+**成功响应**：token字符串
+
+**失败响应**：
+
+| 错误代码 | 错误提示                    |      |
+| -------- | --------------------------- | ---- |
+| 10001    | appId不正确或已停用，请检查 |      |
+| 10002    | 签名验证错误                |      |
+
+
+

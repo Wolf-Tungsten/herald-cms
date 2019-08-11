@@ -54,7 +54,13 @@ module.exports = app => {
   router.delete('/api/v1/api-key/delete', controller.apiKey.delete)
   router.post('/api/v1/api-key/enable', controller.apiKey.enable)
   router.post('/api/v1/api-key/disable', controller.apiKey.disable)
-  
+
+  /** 
+  * 开放API
+  **/
+
+  router.get('/public-api/v1/article-token', controller.public.accessToken.articleAccess)
+  router.get('/public-api/v1/function-token', controller.public.accessToken.functionAccess)
   router.get('/', controller.home.index);
 
 
