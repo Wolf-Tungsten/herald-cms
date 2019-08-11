@@ -43,6 +43,22 @@ class ColumnService extends Service {
     return root
   }
 
+  async findPublicColumnTree(code){
+    let column = await this.ctx.model.Column.findOne({code})
+    if(!column){
+      throw '栏目不存在'
+    }
+    let children = await this.ctx.model.Column.find({parentId:column._id}, ['code', 'name'])
+    let res = {
+      name:column.name,
+      code:column.code,
+      children:[]
+    }
+    for(let child of children){
+      res.children.push((await this.findPublicColumnTree(child.code)))
+    }
+    return res
+  }
   // 以列表形式查找指定栏目的所有子栏目
   async findChildColumnInList(parentId){
     let children = await this.ctx.model.Column.find({parentId:parentId})
