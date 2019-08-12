@@ -37,7 +37,7 @@ class PublicArticleController extends Controller {
       status: 'published',
       topFixed: false // 检索的过程中忽略置顶文章
      },
-      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed'], 
+      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount'], 
       {
       sort: { publishTime: -1 },
       skip: pagesize * (page - 1),
@@ -55,7 +55,7 @@ class PublicArticleController extends Controller {
       status: 'published',
       topFixed: true
      },
-      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed'], 
+      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount'], 
       {
       sort: { publishTime: -1 }
     })
@@ -81,14 +81,14 @@ class PublicArticleController extends Controller {
     if(!article){
       throw {errCode:40001, reason:'文章不存在'}
     }
-    let articleAccess = await this.ctx.model.ArticleAccess.findOne({token, vaild:false, articleId:article._id, expireTime:{$gte:+this.ctx.helper.now()}})
+    let articleAccess = await this.ctx.model.ArticleAccess.findOne({token, valid:false, articleId:article._id, expireTime:{$gte:+this.ctx.helper.now()}})
     if(article.limited && !articleAccess){
       throw {errCode:40002, reason:'访问认证凭据无效'}
     }
 
     if(articleAccess){
       // 有权限文章和无权限文章都可以通过凭据记录
-      articleAccess.vaild = true
+      articleAccess.valid = true
       articleAccess.accessTime = +this.ctx.helper.now()
       await articleAccess.save()
     }

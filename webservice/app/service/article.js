@@ -12,7 +12,8 @@ class ArticleService extends Service {
       topFixed: article.topFixed,
       status: article.status,
       code: article.code,
-      limited: article.limited
+      limited: article.limited,
+      viewCount: article.viewCount
     }
 
     if (article.content) {
