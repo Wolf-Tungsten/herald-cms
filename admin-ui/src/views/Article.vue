@@ -231,7 +231,6 @@
 
 <script>
 import moment from "moment";
-import { mkdir } from "fs";
 export default {
   name: "column",
   components: {},
@@ -275,7 +274,7 @@ export default {
       this.loadCurrentColumn(this.currentColumn);
     },
     async loadCurrentColumn(col) {
-      let columnId = col.name === "站点" ? "" : col._id;
+      //let columnId = col.name === "站点" ? "" : col._id;
       let res;
       if (col.name === "站点") {
         // 如果是 0 级栏目获取自己的草稿、审核中、审核被拒的文章
@@ -350,7 +349,7 @@ export default {
       }
       this.creatingArticle = false;
     },
-    editArticle(index, list, scope) {
+    editArticle(index, list) {
       this.$router.push({ path: `/editor/${list[index].id}` });
     },
     async deleteArticle(index, list) {
@@ -363,11 +362,11 @@ export default {
     },
     async handleArticleListSizeChange(val) {
       this.pagesize = val;
-      loadFullArticleList();
+      this.loadFullArticleList();
     },
     async handleArticleListCurrentChange(val) {
       this.page = val;
-      loadFullArticleList();
+      this.loadFullArticleList();
     },
     async handleTitleFilterChange() {
       this.page = 1;
@@ -398,7 +397,7 @@ export default {
     },
     async cancelPublish(index, list) {
       let articleId = list[index].id;
-      let res = await this.$axios.post(`/article/cancel-publish`, {
+      await this.$axios.post(`/article/cancel-publish`, {
         articleId
       });
       this.loadFullArticleList();

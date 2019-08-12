@@ -40,7 +40,7 @@ window.$store = new Vuex.Store({
       window.$router.replace({name:'forget-password'})
     },
     setCurrentRouteName(state, routeName){
-      let { _, to } = routeName
+      let { to } = routeName
       state.currentRouteName = to.meta.displayName
     },
     setCurrentArticleId(state, articleId){

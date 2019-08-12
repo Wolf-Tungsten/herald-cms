@@ -21,7 +21,6 @@
 
 <script>
 import "../assets/herald-cms-logo.png";
-import { Verify } from "crypto";
 export default {
   name: "activate",
   components: {},

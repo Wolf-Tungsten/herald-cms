@@ -455,7 +455,7 @@ export default {
         publishTime = +moment(this.publishDate);
       }
       await this.save();
-      let res = await this.$axios.post("/article/publish", {
+      await this.$axios.post("/article/publish", {
         articleId: this.articleId,
         publishTime
       });
@@ -463,7 +463,7 @@ export default {
     },
     async saveAndReject() {
       await this.save();
-      let res = await this.$axios.post("/article/cancel-publish", {
+      await this.$axios.post("/article/cancel-publish", {
         articleId: this.articleId
       });
       this.$router.go(-1);

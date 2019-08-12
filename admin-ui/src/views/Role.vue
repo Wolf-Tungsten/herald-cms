@@ -51,8 +51,6 @@
 </template>
 
 <script>
-import moment from "moment";
-import { mkdir } from "fs";
 export default {
   name: "column",
   components: {},
