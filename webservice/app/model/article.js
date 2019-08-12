@@ -16,7 +16,8 @@ module.exports = app => {
     publishTime: { type: String, default:0 }, // 用于设置定时发布
     code: { type: String }, // 前端站使用的便捷Code
     topFixed: {type:Boolean, default:false}, //置顶
-    limited:{type:Boolean, default:false} // 权限文章预留字段
+    limited:{type:Boolean, default:false}, // 权限文章预留字段
+    viewCount:{type:Boolean, default:0} // 阅读量
   });
 
   ArticleSchema.path('content').index({text : true});

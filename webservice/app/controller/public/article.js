@@ -75,6 +75,37 @@ class PublicArticleController extends Controller {
     }
   }
 
+  async getArticleContent(){
+    let { articleCode, token, identifier } = this.ctx.request.query
+    let article = await this.ctx.model.Article.findOne({code:articleCode, status:'published', publishTime:{$lte:+this.ctx.helper.now()}})
+    if(!article){
+      throw {errCode:40001, reason:'文章不存在'}
+    }
+    let articleAccess = await this.ctx.model.ArticleAccess.findOne({token, vaild:false, articleId:article._id, expireTime:{$gte:+this.ctx.helper.now()}})
+    if(article.limited && !articleAccess){
+      throw {errCode:40002, reason:'访问认证凭据无效'}
+    }
+
+    if(articleAccess){
+      // 有权限文章和无权限文章都可以通过凭据记录
+      articleAccess.vaild = true
+      articleAccess.accessTime = +this.ctx.helper.now()
+      await articleAccess.save()
+    }
+
+    // 更新浏览量计数
+    let articleView = new this.ctx.model.ArticleView({articleId:article._id,timestamp:+this.ctx.helper.now(), identifier})
+    await articleView.save()
+    article.viewCount = await this.ctx.model.ArticleView.countDocuments({articleId:article._id})
+    await article.save()
+
+    // 组织文章内容
+    article = await this.ctx.service.article.prepare(article)
+
+    return article
+
+  }
+
 }
 
 module.exports = PublicArticleController;

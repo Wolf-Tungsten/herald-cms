@@ -22,7 +22,7 @@ module.exports = option => {
                     body = e.reason 
                     ctx.status = 400
                 } else {
-                    console.trace(e)
+                    //console.trace(e)
                     ctx.logger.error(e)
                     ctx.status = 400
                 }
