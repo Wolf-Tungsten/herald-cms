@@ -8,7 +8,7 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 import './theme/index.css'
 import ElementUI from 'element-ui'
 
-window.baseURL = 'http://localhost:7001/api/v1/'
+window.baseURL = process.env.VUE_APP_WEBSERVICE_BASEURL
 Vue.config.productionTip = false
 Vue.use(CKEditor)
 Vue.use(ElementUI)
