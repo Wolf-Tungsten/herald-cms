@@ -51,8 +51,10 @@ class ColumnService extends Service {
     let children = await this.ctx.model.Column.find({parentId:column._id}, ['code', 'name'])
     let res = {
       name:column.name,
-      code:column.code,
-      children:[]
+      code:column.code
+    }
+    if(children.length > 0){
+      res.children = []
     }
     for(let child of children){
       res.children.push((await this.findPublicColumnTree(child.code)))
