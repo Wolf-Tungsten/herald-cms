@@ -37,7 +37,7 @@ class PublicArticleController extends Controller {
       status: 'published',
       topFixed: false // 检索的过程中忽略置顶文章
      },
-      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount'], 
+      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount', 'coverImg'], 
       {
       sort: { publishTime: -1 },
       skip: pagesize * (page - 1),
@@ -55,7 +55,7 @@ class PublicArticleController extends Controller {
       status: 'published',
       topFixed: true
      },
-      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount'], 
+      ['title', 'authorName', 'abstract', 'refLink', 'lastModifiedTime', 'publishTime', 'code', 'topFixed', 'viewCount', 'coverImg'], 
       {
       sort: { publishTime: -1 }
     })
