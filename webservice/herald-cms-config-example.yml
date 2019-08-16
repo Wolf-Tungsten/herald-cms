@@ -25,7 +25,7 @@ domainWhiteList:
   - 'http://localhost:8080'
 
 # 静态文件管理
-# publicUrlPrefix 指定公开访问静态文件的URL，
+# publicUrlPrefix 指定公开访问静态文件的URL前缀，
 # 可以指定多个负载均衡URL或者通过此处指定CDN
 # 以 / 结尾
 publicUrlPrefix: 
