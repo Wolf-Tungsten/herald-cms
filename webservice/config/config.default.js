@@ -23,10 +23,10 @@ module.exports = appInfo => {
       },
       domainWhiteList: configYaml.domainWhiteList // 跨域白名单
     },
-    cors:{
+    cors: {
       // 跨域中间件
     },
-    mongoose:{
+    mongoose: {
       client: {
         url: configYaml.mongodbURL,
         options: {},
@@ -34,25 +34,31 @@ module.exports = appInfo => {
         plugins: [],
       },
     },
-    mail:configYaml.mail,
-    static:{
-      publicUrlPrefix:configYaml.publicUrlPrefix,
-      localStaticPath:configYaml.localStaticPath
+    mail: configYaml.mail,
+    static: {
+      publicUrlPrefix: configYaml.publicUrlPrefix,
+      localStaticPath: configYaml.localStaticPath
     },
-    multipart:{
+    multipart: {
       fileSize: '1gb',
-      fileExtensions:['doc','docx','xls','xlsx','ppt','pptx','pdf'],
-      whitelist:[
-        '.doc','.docx','.xls','.xlsx','.ppt','.pptx','.pdf','.zip',
+      fileExtensions: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'],
+      whitelist: [
+        '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf', '.zip',
         '.apk',
-        '.jpg', '.jpeg', '.png', 
+        '.jpg', '.jpeg', '.png',
         '.gif', '.bmp',
-        '.zip','.rar','.gz', '.tgz', '.gzip',
+        '.zip', '.rar', '.gz', '.tgz', '.gzip',
         // video
         '.mp3',
         '.mp4',
         '.txt'
       ]
+    },
+    cluster: {
+      listen: {
+        port: configYaml.port ? +configYaml.port : 7942,
+        hostname: configYaml.hostname
+      }
     }
   };
   config.webPostLoginURL = configYaml.webPostLoginURL

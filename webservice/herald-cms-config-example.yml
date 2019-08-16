@@ -1,5 +1,9 @@
 # 这是 herald-cms 面向用户的配置文件
 
+# 服务器监听设置
+hostname: 127.0.0.1
+port: 7942
+
 # 服务器URL（以/结尾）
 serverURL: http://127.0.0.1:7002/
 
