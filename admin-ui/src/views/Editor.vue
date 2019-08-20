@@ -263,6 +263,7 @@ export default {
           "insertTable",
           "imageTextAlternative",
           "imageUpload",
+          "code",
           "|",
           "fontSize",
           "fontFamily",
