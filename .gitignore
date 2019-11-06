@@ -2,3 +2,4 @@
 webservice/secret/
 herald-cms-config.yml
 webservice/app/public/
+admin-ui/vue.config.js
