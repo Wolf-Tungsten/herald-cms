@@ -6,8 +6,8 @@ module.exports = app => {
     articleId: { type: String },
     resourceName: { type: String },
     type: { type: String }, // image video appendFile
-    displayName: { type: String, default:''}
+    displayName: { type: String, default: '' },
   });
 
   return mongoose.model('Resource', ResourceSchema);
-}
+};

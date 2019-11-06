@@ -5,9 +5,9 @@ module.exports = app => {
   const ColumnSchema = new Schema({
     code: { type: String },
     name: { type: String },
-    level: { type:Number },
-    parentId: {type:String, default:''}
+    level: { type: Number },
+    parentId: { type: String, default: '' },
   });
 
   return mongoose.model('Column', ColumnSchema);
-}
+};

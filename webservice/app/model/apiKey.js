@@ -5,9 +5,9 @@ module.exports = app => {
   const ApiKeySchema = new Schema({
     appId: { type: String },
     appSecret: { type: String },
-    enable: { type: Boolean, default:true },
-    name: {type:String}
+    enable: { type: Boolean, default: true },
+    name: { type: String },
   });
 
   return mongoose.model('APIKey', ApiKeySchema);
-}
+};
