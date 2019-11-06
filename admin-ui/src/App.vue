@@ -57,6 +57,7 @@
 import "./assets/herald-cms-logo-text.png";
 import "./assets/herald-cms-logo.png";
 import "element-ui/lib/theme-chalk/display.css";
+
 export default {
   data() {
     return {

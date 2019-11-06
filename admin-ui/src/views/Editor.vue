@@ -13,7 +13,7 @@
       </el-form>
       <el-form ref="contentForm" label-width="80px">
         <el-form-item label="文章内容">
-          <div style="text-align:left;">
+          <div class="editor-container" style="text-align:left; line-height:1;">
             <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
           </div>
         </el-form-item>
@@ -180,8 +180,10 @@ import ImageToolbar from "@ckeditor/ckeditor5-image/src/imagetoolbar";
 import ImageCaption from "@ckeditor/ckeditor5-image/src/imagecaption";
 import ImageStyle from "@ckeditor/ckeditor5-image/src/imagestyle";
 import ImageUpload from "@ckeditor/ckeditor5-image/src/imageupload";
+import PreElement from 'ckeditor5-code-block/src/pre';
 import ImageUploadAdapterPlugin from "../editor/uploadAdapter";
 import moment from "moment";
+
 export default {
   name: "editor",
   components: {},
@@ -239,7 +241,8 @@ export default {
           ImageToolbar,
           ImageCaption,
           ImageStyle,
-          ImageUpload
+          ImageUpload,
+          PreElement,
         ],
         extraPlugins: [ImageUploadAdapterPlugin],
         toolbar: [
@@ -264,6 +267,7 @@ export default {
           "imageTextAlternative",
           "imageUpload",
           "code",
+          "pre",
           "|",
           "fontSize",
           "fontFamily",
@@ -494,5 +498,12 @@ export default {
 <style>
 .ck-editor__editable_inline {
   min-height: 100px;
+}
+.editor-container pre {
+  background: rgb(253, 253, 226);
+  padding:10px;
+  border-radius: 5px;
+  line-height: 1.3;
+  border-width: 1px;
 }
 </style>
