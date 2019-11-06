@@ -13,7 +13,7 @@
       </el-form>
       <el-form ref="contentForm" label-width="80px">
         <el-form-item label="文章内容">
-          <div class="editor-container" style="text-align:left; line-height:1;">
+          <div class="editor-container" style="text-align:left; line-height:1.5;">
             <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
           </div>
         </el-form-item>
